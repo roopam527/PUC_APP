@@ -31,7 +31,7 @@ app.use(passport.session());
 
 
 
-const PORT = 8000;
+const PORT = process.env.PORT || 8000;
 
 const authRoutes = require("./routes/auth");
 app.use("/auth", authRoutes);
