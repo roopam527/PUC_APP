@@ -11,8 +11,10 @@ const requireLogin = require('../middlewares/requireLogin');
 
 router.post(
   "/login",
-  passport.authenticate('local'),
+  (req,res,next) =>{
+  passport.authenticate('local',(err,user,info)=>{res.json(info)})(req,res,next)},
   (req, res) => {
+    //console.log(res.info)
     const token = jwt.sign({username:req.user.username,userId:req.user._id},config.JWT_KEY,{expiresIn:'24h'});
 			res.status(200).json({
 				token:token,
@@ -53,7 +55,8 @@ router.get('/current_user',requireLogin,(req,res)=>{
   res.send(req.userData)
 })
 router.get("/error", (req, res) => {
-  res.status(422).send("Something went wrong");
+  console.log(res)
+  res.status(422).json(req.info);
 });
 
 module.exports = router;

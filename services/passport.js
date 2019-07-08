@@ -8,16 +8,16 @@
  const User = mongoose.model('users');
 
  module.exports = function (passport) {
-console.log("Hell")
+
 passport.serializeUser((user,done)=>{
-console.log("Hell1")
+
 
     done(null,user.id)//user.id is a user id in our db
 
 })
 
 passport.deserializeUser(async(id,done)=>{
-console.log("Hell2")
+
 
     const user = await User.findById(id)
     done(null,user)
