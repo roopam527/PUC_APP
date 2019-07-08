@@ -24,7 +24,11 @@ router.post(
 
 router.post("/register", async (req, res) => {
 
-let user = await User.findOne({ username: req.body.username }).catch(() => {
+let user = await User.findOne({$or: [
+  
+  { 'email': req.body.email },
+  { 'username': req.body.username }
+]}).catch(() => {
     return res.status(400).send({ error: "Something Went wrong" });
   });
 
@@ -40,7 +44,7 @@ let user = await User.findOne({ username: req.body.username }).catch(() => {
       });
     return res.status(200).send({ message: "done" });
   }
-  return res.status(501).send({ error: "this email is already registered" });
+  return res.status(501).send({ error: "this email or username is already registered" });
 });
 
 
