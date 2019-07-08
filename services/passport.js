@@ -30,7 +30,7 @@ passport.use(
     const user = await  User.findOne({ username: username})
    
       if (!user) {
-        return done(null, false, { error: 'That email is not registered' });
+        return done(null, false, { error: 'That username is not registered' });
       }
 
       // Match password

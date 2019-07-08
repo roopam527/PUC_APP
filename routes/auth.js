@@ -12,16 +12,22 @@ const requireLogin = require('../middlewares/requireLogin');
 router.post(
   "/login",
   (req,res,next) =>{
-  passport.authenticate('local',(err,user,info)=>{res.json(info)})(req,res,next)},
-  (req, res) => {
-    //console.log(res.info)
-    const token = jwt.sign({username:req.user.username,userId:req.user._id},config.JWT_KEY,{expiresIn:'24h'});
-			res.status(200).json({
-				token:token,
-				expiresIn : "24h",
-				userId:req.user._id
-			});
-  }
+  passport.authenticate('local',(err,user,info)=>{
+    if(info){
+     return res.json(info)
+    }
+
+    
+      //console.log(res.info)
+      const token = jwt.sign({username:user.username,userId:user._id},config.JWT_KEY,{expiresIn:'24h'});
+        res.status(200).json({
+          token:token,
+          expiresIn : "24h",
+          userId:user._id
+        });
+    
+    
+  })(req,res,next)}
 );
 
 router.post("/register", async (req, res) => {
