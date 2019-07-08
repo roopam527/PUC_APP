@@ -7,6 +7,7 @@ const session = require('express-session');
 const MongoStore = require("connect-mongo")(session);
 const bodyParser = require('body-parser');
 require("./models/users");
+require("./models/challenges");
 require("./services/passport");
 
 
@@ -35,9 +36,10 @@ const PORT = process.env.PORT || 8000;
 
 const authRoutes = require("./routes/auth");
 const userRoutes = require("./routes/userRoutes");
+const challengeRoute = require("./routes/challengeRoutes");
 app.use("/auth", authRoutes);
 app.use("/user",userRoutes);
-
+app.use("/challenge",challengeRoute)
 app.listen(PORT, () => {
   console.log("Server is listening at", PORT);
 });
