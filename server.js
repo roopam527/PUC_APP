@@ -29,12 +29,14 @@ passport_config(passport);
 app.use(passport.initialize());
 app.use(passport.session());
 
-
+mongoose.set('useFindAndModify', false);
 
 const PORT = process.env.PORT || 8000;
 
 const authRoutes = require("./routes/auth");
+const userRoutes = require("./routes/userRoutes");
 app.use("/auth", authRoutes);
+app.use("/user",userRoutes);
 
 app.listen(PORT, () => {
   console.log("Server is listening at", PORT);
