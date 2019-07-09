@@ -58,15 +58,33 @@ router.put('/set_user_details',requireLogin,upload.single('profile_pic'),async (
 
 })
 
-router.get('/get_all_users',async (req,res)=>{
-    let users = await User.find({});
-   
+router.get('/get_all_users',requireLogin,async (req,res)=>{
+    let users;
+    const pageSize = +req.query.pagesize || 20;
+    const currentPage = +req.query.page || 0;
+  
+   if(req.query.search){
+     users = await User.find({'username' : new RegExp(req.query.search, 'i')})
+     .skip(currentPage * pageSize)
+     .limit(pageSize)
+     
+      users =  users.map((user)=>({
+        _id:user._id,
+        username:user.username,
+        profile_pic:user.profile_pic
+      }))
+       
+   }else{
+       users =  await User.find({})
+       .skip(currentPage * pageSize)
+       .limit(pageSize)
+   }
     users = users.map((user)=>{
         
        user = JSON.parse(JSON.stringify(user));
-        user.followers = user.followers.length;
-        user.followings = user.followings.length;
-        user.blocked_accounts = user.blocked_accounts.length,
+        // user.followers = user.followers.length;
+        // user.followings = user.followings.length;
+        // user.blocked_accounts = user.blocked_accounts.length,
         console.log(user)
         return user;
     })
@@ -74,7 +92,13 @@ router.get('/get_all_users',async (req,res)=>{
    return res.status(200).json(users)
 })
 
-router.get('/get_user/:id',async (req,res)=>{
+router.get('/get_all_followers/:id',requireLogin,async (req,res)=>{
+    let user =  await User.findById(req.params.id).select('followers');
+    const followers = await Promise.alluser.map(async (id)=> await User.findById(id))
+    res.status(200).json(user.followers);
+})
+
+router.get('/get_user/:id',requireLogin,async (req,res)=>{
     let user =  await User.findById(req.params.id);
     user = JSON.parse(JSON.stringify(user));
     user.followers = user.followers.length;
@@ -91,11 +115,7 @@ router.post('/follow/:id',requireLogin,async (req,res)=>{
     let followed_user = await User.findById(req.params.id);
     let followings = JSON.parse(JSON.stringify(loggedInUser.followings));
     const followed_user_id = JSON.parse(JSON.stringify(followed_user._id));
-    // console.log(followings.includes(followed_user_id));
-    // console.log(typeof(followed_user_id),followed_user_id)
-    // console.log(typeof(followings[0]),followings[0]);
 
-    
     if(!(followings.includes(followed_user_id))){
     followed_user.followers.push(mongoose.Types.ObjectId(req.userData.userId));
     loggedInUser.followings.push(mongoose.Types.ObjectId(followed_user._id));

@@ -3,6 +3,11 @@ const Schema = mongoose.Schema;
 const uniqueValidator = require('mongoose-unique-validator');
 
 const userSchema = mongoose.Schema({
+    _id:{
+        type:Schema.ObjectId,
+        required:true
+    },
+    
     email: {
         type:String,
         required:true,
