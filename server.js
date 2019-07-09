@@ -16,7 +16,7 @@ app.use(bodyParser.urlencoded({
     extended: true
 }));
 app.use(bodyParser.json());
-
+app.use('/uploads',express.static('uploads'));
 
 mongoose.connect(keys.MONGO_URI, { useNewUrlParser: true });
 mongoose.connection

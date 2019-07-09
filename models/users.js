@@ -29,6 +29,7 @@ const userSchema = mongoose.Schema({
          ref: 'users',
         default:[]
     },
+
     followers:{
         type: [Schema.Types.ObjectId],
          ref: 'users',
@@ -41,6 +42,20 @@ const userSchema = mongoose.Schema({
     },
     profile_pic:{
         type:String
+    },
+    Accepted:{
+        type:String,
+        default:0
+
+    },
+    given:{
+        type:String,
+        default:0
+
+    },
+    level:{
+        type:Number,
+        default:0
     }
 
 });
