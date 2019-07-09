@@ -84,4 +84,72 @@ router.get('/get_user/:id',async (req,res)=>{
     return res.status(200).json(user)
 })
 
+router.post('/follow/:id',requireLogin,async (req,res)=>{
+    try{
+    let loggedInUser = await  User.findById(req.userData.userId);
+    //loggedInUser = JSON.parse(JSON.stringify(loggedInUser));
+    let followed_user = await User.findById(req.params.id);
+    let followings = JSON.parse(JSON.stringify(loggedInUser.followings));
+    const followed_user_id = JSON.parse(JSON.stringify(followed_user._id));
+    // console.log(followings.includes(followed_user_id));
+    // console.log(typeof(followed_user_id),followed_user_id)
+    // console.log(typeof(followings[0]),followings[0]);
+
+    
+    if(!(followings.includes(followed_user_id))){
+    followed_user.followers.push(mongoose.Types.ObjectId(req.userData.userId));
+    loggedInUser.followings.push(mongoose.Types.ObjectId(followed_user._id));
+    await followed_user.save();
+    await loggedInUser.save();
+    return res.status(200).json({
+        message:`${loggedInUser.username} started following ${followed_user.username}`
+    })
+}else{
+    return res.status(200).json({
+        message:`${loggedInUser.username} already following ${followed_user.username}`
+    })
+}
+    }catch(err){
+        console.log(err)
+        return res.status(422).json({
+            message:`Something went wrong`
+        })
+    }
+})
+
+router.post('/unfollow/:id',requireLogin,async (req,res)=>{
+    try{
+    let loggedInUser = await  User.findById(req.userData.userId);
+    loggedInUser = JSON.parse(JSON.stringify(loggedInUser));
+    let followed_user = await User.findById(req.params.id);
+    followed_user = JSON.parse(JSON.stringify(followed_user));
+
+    // followed_user.followers.push(mongoose.Types.ObjectId(req.userData.userId));
+    console.log(followed_user.followers );
+    console.log(loggedInUser.followings);
+    followed_user.followers = followed_user.followers.filter((user)=>{
+        return user != loggedInUser._id
+    })
+    console.log(followed_user.followers );
+    // loggedInUser.followings.push(mongoose.Types.ObjectId(loggedInUser._id));
+    loggedInUser.followings = loggedInUser.followings.filter((user)=>user != followed_user._id)
+    console.log(loggedInUser.followings,followed_user._id);
+    await User.findOneAndUpdate({_id:followed_user._id},{followers:followed_user.followers})
+    await User.findOneAndUpdate({_id:loggedInUser._id},{followings:loggedInUser.followings})
+
+    // await followed_user.save();
+    // await loggedInUser.save();
+
+
+    return res.status(200).json({
+        message:`${loggedInUser.username} unfollowed ${followed_user.username}`
+    })
+    }catch(err){
+        console.log(err)
+        return res.status(422).json({
+            message:`Something went wrong`
+        })
+    }
+})
+
 module.exports = router;
