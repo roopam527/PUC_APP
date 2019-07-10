@@ -70,9 +70,9 @@ router.get('/get_all_users',requireLogin,async (req,res)=>{
      .limit(pageSize)
      
       users =  users.map((user)=>{
-          if(JSON.parse(JSON.stringify(user._id)) === JSON.parse(JSON.stringify(loggedInUser._id))){
-              return null
-          }
+        //   if(JSON.parse(JSON.stringify(user._id)) === JSON.parse(JSON.stringify(loggedInUser._id))){
+        //       return null
+        //   }
           return{
         _id:user._id,
         username:user.username,
@@ -99,7 +99,7 @@ router.get('/get_all_users',requireLogin,async (req,res)=>{
             profile_pic:user.profile_pic,
             bio:user.bio,
             following:(LoggedInUser.followings.includes(user._id))
-          }
+        }
     })
    
    return res.status(200).json({   
