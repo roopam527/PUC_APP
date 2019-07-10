@@ -89,7 +89,10 @@ router.get('/get_all_users',requireLogin,async (req,res)=>{
         return user;
     })
    
-   return res.status(200).json(users)
+   return res.status(200).json(
+       {   count:users.length,
+           users:users
+        })
 })
 
 router.get('/get_all_followers/:id',requireLogin,async (req,res)=>{
