@@ -94,8 +94,15 @@ router.get('/get_all_users',requireLogin,async (req,res)=>{
 
 router.get('/get_all_followers/:id',requireLogin,async (req,res)=>{
     let user =  await User.findById(req.params.id).select('followers');
-    const followers = await Promise.alluser.map(async (id)=> await User.findById(id))
-    res.status(200).json(user.followers);
+    const followers = await Promise.all(user.followers.map(async (id)=> await User.findById(id).select('username')))
+    res.status(200).json(followers);
+})
+
+router.get('/get_all_following/:id',requireLogin,async(req,res) =>{
+    let user =  await User.findById(req.params.id).select('followings');
+    const followings = await Promise.all(user.followings.map(async (id)=> await User.findById(id).select('username')))
+    res.status(200).json(followings);
+
 })
 
 router.get('/get_user/:id',requireLogin,async (req,res)=>{
