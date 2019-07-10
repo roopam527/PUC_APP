@@ -62,7 +62,8 @@ router.get('/get_all_users',requireLogin,async (req,res)=>{
     let users;
     const pageSize = +req.query.pagesize || 20;
     const currentPage = +req.query.page || 0;
-  
+    const LoggedInUser = await User.findById(req.userData.userId);
+
    if(req.query.search){
      users = await User.find({'username' : new RegExp(req.query.search, 'i')})
      .skip(currentPage * pageSize)
@@ -71,7 +72,9 @@ router.get('/get_all_users',requireLogin,async (req,res)=>{
       users =  users.map((user)=>({
         _id:user._id,
         username:user.username,
-        profile_pic:user.profile_pic
+        profile_pic:user.profile_pic,
+        bio:user.bio,
+        following:(LoggedInUser.followings.includes(user._id))
       }))
        
    }else{
@@ -89,9 +92,10 @@ router.get('/get_all_users',requireLogin,async (req,res)=>{
         return user;
     })
    
-   return res.status(200).json(
-       {   count:users.length,
+   return res.status(200).json({   
+        count:users.length,
            user_searched_results:users
+
         })
 })
 
