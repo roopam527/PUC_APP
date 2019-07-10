@@ -30,6 +30,11 @@ router.post(
   })(req,res,next)}
 );
 
+
+// router.post('/login_google',(req,res)=>{
+
+// })
+
 router.post("/register", async (req, res) => {
 
 let user = await User.findOne({$or: [

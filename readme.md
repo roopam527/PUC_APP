@@ -18,7 +18,7 @@
 
 ### `GET` /challenge/fetch/:username
 
-### `GET` /challenge/fetch_challeges
+### `GET` /challenge/fetch_challenges
 
 ### `PUT` /challenge/update/:id
 

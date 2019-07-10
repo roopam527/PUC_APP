@@ -62,27 +62,33 @@ router.get('/fetch/:username',(req,res,next) => {
       });
     });
 });
-router.get('/fetch_challeges',async (req,res)=>{
-    let all_challenges =await Challenge.find({});
-    all_challenges.stringyfy().parse()
-    console.log(all_challenges)
-    
-    for(let challenge of all_challenges){
-        let data = await Promise.all(challenge['given_to'].map(async (id)=> {
-            const user = await User.findById(id);
-            console.log("************")
-            console.log(user);
-         return user; 
-        }))
-        console.log("-------------")
-        console.log(data);
-        challenge['given_to'] = data
-    }
-    //  all_challenges.map(async ({given_to})=>{
-    //     given_to = 
-    //  })
-    return res.status(200).json(all_challenges);
+
+router.get('/fetch_my_challenges/:id',requireLogin,async (req,res)=>{
+    const challenges = await Challenge.find({creator:req.params.id});
+    res.status(200).json(challenges);
 })
+
+// router.get('/fetch_challenges',async (req,res)=>{
+//     let all_challenges =await Challenge.find({});
+//     all_challenges.stringyfy().parse()
+//     console.log(all_challenges)
+    
+//     for(let challenge of all_challenges){
+//         let data = await Promise.all(challenge['given_to'].map(async (id)=> {
+//             const user = await User.findById(id);
+//             console.log("************")
+//             console.log(user);
+//          return user; 
+//         }))
+//         console.log("-------------")
+//         console.log(data);
+//         challenge['given_to'] = data
+//     }
+//     //  all_challenges.map(async ({given_to})=>{
+//     //     given_to = 
+//     //  })
+//     return res.status(200).json(all_challenges);
+// })
 router.put('/update/:id',(req,res,next) => {
     const challenge_new_data = {
         title:req.body.title,
