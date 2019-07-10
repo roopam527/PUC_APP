@@ -115,7 +115,15 @@ router.get('/get_all_followers',requireLogin,async (req,res)=>{
         userId = req.userData.userId;
     }
     let user =  await User.findById(userId).select('followers');
-    const followers = await Promise.all(user.followers.map(async (id)=> await User.findById(id).select('username')))
+    const followers = await Promise.all(user.followers.map(async (id)=> {
+       const res =  await User.findById(id)
+       return{
+        _id:res._id,
+        username:res.username,
+        profile_pic:res.profile_pic,
+        bio:res.bio,
+    }
+    }))
     res.status(200).json(followers);
 })
 
@@ -125,7 +133,15 @@ router.get('/get_all_followings',requireLogin,async(req,res) =>{
         userId = req.userData.userId;
     }
     let user =  await User.findById(userId).select('followings');
-    const followings = await Promise.all(user.followings.map(async (id)=> await User.findById(id).select('username')))
+    const followings = await Promise.all(user.followings.map(async (id)=>{
+        const res = await User.findById(id);
+        return{
+            _id:res._id,
+            username:res.username,
+            profile_pic:res.profile_pic,
+            bio:res.bio,
+        }
+    }));
     res.status(200).json(followings);
 
 })
