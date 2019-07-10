@@ -69,13 +69,17 @@ router.get('/get_all_users',requireLogin,async (req,res)=>{
      .skip(currentPage * pageSize)
      .limit(pageSize)
      
-      users =  users.map((user)=>({
+      users =  users.map((user)=>{
+          if(JSON.parse(JSON.stringify(user._id)) === JSON.parse(JSON.stringify(loggedInUser._id))){
+              return null
+          }
+          return{
         _id:user._id,
         username:user.username,
         profile_pic:user.profile_pic,
         bio:user.bio,
         following:(LoggedInUser.followings.includes(user._id))
-      }))
+      }})
        
    }else{
        users =  await User.find({})
@@ -89,7 +93,13 @@ router.get('/get_all_users',requireLogin,async (req,res)=>{
         // user.followings = user.followings.length;
         // user.blocked_accounts = user.blocked_accounts.length,
         console.log(user)
-        return user;
+        return{
+            _id:user._id,
+            username:user.username,
+            profile_pic:user.profile_pic,
+            bio:user.bio,
+            following:(LoggedInUser.followings.includes(user._id))
+          }
     })
    
    return res.status(200).json({   
@@ -99,14 +109,22 @@ router.get('/get_all_users',requireLogin,async (req,res)=>{
         })
 })
 
-router.get('/get_all_followers/:id',requireLogin,async (req,res)=>{
-    let user =  await User.findById(req.params.id).select('followers');
+router.get('/get_all_followers',requireLogin,async (req,res)=>{
+    let userId = req.query.id
+    if(!userId){
+        userId = req.userData.userId;
+    }
+    let user =  await User.findById(userId).select('followers');
     const followers = await Promise.all(user.followers.map(async (id)=> await User.findById(id).select('username')))
     res.status(200).json(followers);
 })
 
-router.get('/get_all_following/:id',requireLogin,async(req,res) =>{
-    let user =  await User.findById(req.params.id).select('followings');
+router.get('/get_all_followings',requireLogin,async(req,res) =>{
+    let userId = req.query.id
+    if(!userId){
+        userId = req.userData.userId;
+    }
+    let user =  await User.findById(userId).select('followings');
     const followings = await Promise.all(user.followings.map(async (id)=> await User.findById(id).select('username')))
     res.status(200).json(followings);
 

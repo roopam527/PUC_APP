@@ -33,6 +33,7 @@ router.post('/create',requireLogin,(req,res,next) =>{
 		creator: mongoose.Types.ObjectId(req.userData.userId),
         filetype: req.body.filetype,
         given_to : req.body.given_to
+        
 	});
 	challenge.save().then(createdPost => {
 		res.status(200).json({
