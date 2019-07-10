@@ -91,7 +91,7 @@ router.get('/get_all_users',requireLogin,async (req,res)=>{
    
    return res.status(200).json(
        {   count:users.length,
-           users:users
+           user_searched_results:users
         })
 })
 
