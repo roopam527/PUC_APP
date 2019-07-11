@@ -110,41 +110,86 @@ router.get('/get_all_users',requireLogin,async (req,res)=>{
 })
 
 router.get('/get_all_followers',requireLogin,async (req,res)=>{
+    const pageSize = +req.query.pagesize || 20;
+    const currentPage = +req.query.page || 0;
     let userId = req.query.id
     if(!userId){
         userId = req.userData.userId;
     }
+    // .skip(currentPage * pageSize)
+    // .limit(pageSize)
     let user =  await User.findById(userId).select('followers');
-    const followers = await Promise.all(user.followers.map(async (id)=> {
-       const res =  await User.findById(id)
-       return{
-        _id:res._id,
-        username:res.username,
-        profile_pic:res.profile_pic,
-        bio:res.bio,
+    let followers = [];
+    for (let i = currentPage * pageSize ; i <= currentPage * pageSize + pageSize - 1; i++  ){
+        if(user.followers[i]){
+        result = await User.findById(user.followers[i]._id)
+
+        followers.push({
+            _id:result._id,
+            username:result.username,
+            profile_pic:result.profile_pic,
+            bio:result.bio,
+
+
+        })
     }
-    }))
+    }
+    // let followers = await Promise.all(user.followers.map(async (id)=> {
+        
+    //    const res =  await User.findById(id)
+    //    return{
+    //     _id:res._id,
+    //     username:res.username,
+    //     profile_pic:res.profile_pic,
+    //     bio:res.bio,
+    // }
+    // }))
+
+
+    console.log(req.query.search);
+    console.log(followers)
+    if(req.query.search){
+        followers = followers.filter(({username})=>username.match(new RegExp(req.query.search, 'i')))
+    }
+
     res.status(200).json(followers);
 })
 
 router.get('/get_all_followings',requireLogin,async(req,res) =>{
+    const pageSize = +req.query.pagesize || 20;
+    const currentPage = +req.query.page || 0;
     let userId = req.query.id
     if(!userId){
         userId = req.userData.userId;
     }
+   
     let user =  await User.findById(userId).select('followings');
-    const followings = await Promise.all(user.followings.map(async (id)=>{
-        const res = await User.findById(id);
-        return{
-            _id:res._id,
-            username:res.username,
-            profile_pic:res.profile_pic,
-            bio:res.bio,
-        }
-    }));
+    let followings = [];
+    
+
+    for (let i = currentPage * pageSize ; i <= currentPage * pageSize + pageSize - 1; i++  ){
+        if(user.followings[i]){
+
+        result = await User.findById(user.followings[i]._id)
+
+        followings.push({
+            _id:result._id,
+            username:result.username,
+            profile_pic:result.profile_pic,
+            bio:result.bio,
+
+        })
+    }
+    }
+    console.log(req.query.search);
+    console.log(followings)
+    if(req.query.search){
+        followings = followings.filter(({username})=>username.match(new RegExp(req.query.search, 'i')))
+    }
     res.status(200).json(followings);
 
 })
+
 
 router.get('/get_user/:id',requireLogin,async (req,res)=>{
     let user =  await User.findById(req.params.id);

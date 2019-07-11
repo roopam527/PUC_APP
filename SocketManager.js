@@ -6,20 +6,21 @@ const {
 } = require("./events");
 const SocketManager = (socket)=>{
     global.socket = socket
-    console.log(socket.id)
+    console.log(socket)
    
     socket.on(USER_CONNECTED, (userId) => {
-      console.log("helllllllllllllllllllllllll")
       //const userInfo = await User.findById(userId);
       const user = createUser({  socketId:socket.id , userId});
-
       // io.emit(`${userId}-connected`,true)
       console.log(user)
       addUserToOnlineUsersList(user);
      // const chatHistory = await getAllPeviousChats(userInfo.chatsIdArray);
-    
+
     //  setUser(user, chatHistory);
     });
+    // socket.on("CREATE_CHAT",(senderId,recieverId)=>{
+
+    // })
     };
 
 
@@ -33,7 +34,7 @@ const createUser = ({  socketId = null , userId = ""} = {}) => ({
     return username in onlineUsers;
   };
 
-  
+
     
   const addUserToOnlineUsersList = ({socketId,userId,activeChat=""}) => {
     if (!isUserAlreadyOnline(socketId)) {
