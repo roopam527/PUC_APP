@@ -6,7 +6,7 @@ const {
 } = require("./events");
 const SocketManager = (socket)=>{
     global.socket = socket
-    console.log(socket.query.user_id)
+    console.log(socket.handshake.query)
    
     socket.on(USER_CONNECTED, (userId) => {
       //const userInfo = await User.findById(userId);
