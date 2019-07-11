@@ -43,6 +43,9 @@ const challengeRoute = require("./routes/challengeRoutes");
 app.use("/auth", authRoutes);
 app.use("/user",userRoutes);
 app.use("/challenge",challengeRoute)
+app.get('/', (req, res) => {
+  res.send('Chat Server is running on port 8000')
+  });
 // app.listen(PORT, () => {
 //   console.log("Server is listening at", PORT);
 // });
@@ -53,4 +56,14 @@ server.listen(PORT, () => {
 
 
 const SocketManger = require('./SocketManager')
-io.on("connect", SocketManger) 
+io.on("connection", SocketManger) 
+
+// io.on("connect", (socket)=>{
+//     global.socket = socket
+//     console.log(connected",socket.id)
+   
+//     socket.on("new message",(name)=>{
+//       console.log(name);
+//     })
+//     }
+// ) 
