@@ -8,10 +8,12 @@ const SocketManager = (socket)=>{
     global.socket = socket
     console.log(socket.id)
    
-    socket.on(USER_CONNECTED, async (userId) => {
+    socket.on(USER_CONNECTED,  (userId) => {
       //const userInfo = await User.findById(userId);
       const user = createUser({  socketId:socket.id , userId});
+      
       io.emit(`${userId}-connected`,true)
+      console.log(user)
       addUserToOnlineUsersList(user);
      // const chatHistory = await getAllPeviousChats(userInfo.chatsIdArray);
     
