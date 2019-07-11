@@ -8,7 +8,13 @@ var server = require("http").Server(app);
 const session = require('express-session');
 const MongoStore = require("connect-mongo")(session);
 const bodyParser = require('body-parser');
+
 require("./models/users");
+
+require("./models/allchats");
+require("./models/messages");
+
+
 require("./models/challenges");
 require("./services/passport");
 

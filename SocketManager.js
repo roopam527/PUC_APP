@@ -1,5 +1,9 @@
 let onlineUsers = {};
+const mongoose = require("mongoose");
 
+const User = mongoose.model("users"); 
+
+const AllChats = mongoose.model('allchats')
 const { 
   USER_CONNECTED,
   
@@ -15,10 +19,20 @@ const SocketManager = (socket)=>{
       console.log(user)
       addUserToOnlineUsersList(user);
     });
+
+
+
+    socket.on(CREATE_CHAT, (recieverId) => {
+        const chat = new AllChats({
+          user:[socket.handshake.query.user_id,recieverId]
+        })
+        await chat.save()
+        console.log("helllloooooooooo")
+    });
     
-    };
+};
 
-
+/////////////////////////////////////////////////////////////////
 const createUser = ({  socketId = null , userId = ""} = {}) => ({
       
       socketId,

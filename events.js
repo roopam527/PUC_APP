@@ -1,3 +1,4 @@
 module.exports = {
     USER_CONNECTED:"USER_CONNECTED",
+    CREATE_CHAT:"CREATE_CHAT"
  }
