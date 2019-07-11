@@ -22,7 +22,7 @@ const SocketManager = (socket)=>{
 
 
 
-    socket.on(CREATE_CHAT, (recieverId) => {
+    socket.on(CREATE_CHAT, async (recieverId) => {
         const chat = new AllChats({
           user:[socket.handshake.query.user_id,recieverId]
         })

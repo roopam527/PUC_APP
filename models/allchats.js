@@ -1,7 +1,7 @@
 
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
-
+const moment = require('moment')
 const allChatsSchema = new Schema({
   name:{
     type:String,
@@ -26,4 +26,4 @@ const allChatsSchema = new Schema({
 });
 
 
-mongoose.model('allChats', allChatsSchema);
+mongoose.model('allchats', allChatsSchema);
