@@ -33,6 +33,7 @@ const createUser = ({  socketId = null , userId = ""} = {}) => ({
     return username in onlineUsers;
   };
 
+  
     
   const addUserToOnlineUsersList = ({socketId,userId,activeChat=""}) => {
     if (!isUserAlreadyOnline(socketId)) {
