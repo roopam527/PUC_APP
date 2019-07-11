@@ -8,7 +8,7 @@ const SocketManager = (socket)=>{
     global.socket = socket
     console.log(socket.id)
    
-    socket.on(USER_CONNECTED,  (userId) => {
+    socket.on(USER_CONNECTED, (userId) => {
       console.log("helllllllllllllllllllllllll")
       //const userInfo = await User.findById(userId);
       const user = createUser({  socketId:socket.id , userId});

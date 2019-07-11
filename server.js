@@ -51,7 +51,7 @@ app.get('/', (req, res) => {
 // });
 
 server.listen(PORT, () => {
-  console.log("Server is started!",process.env.NODE_ENV,process.env.PORT);
+  console.log("Server is started!");
 });
 
 
