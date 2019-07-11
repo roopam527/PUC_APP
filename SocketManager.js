@@ -21,13 +21,17 @@ const SocketManager = (socket)=>{
     //  setUser(user, chatHistory);
     });
     };
-    
+
 
 const createUser = ({  socketId = null , userId = ""} = {}) => ({
       
       socketId,
       userId
   });
+
+  const isUserAlreadyOnline = username => {
+    return username in onlineUsers;
+  };
 
     
   const addUserToOnlineUsersList = ({socketId,userId,activeChat=""}) => {
