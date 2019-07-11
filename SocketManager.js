@@ -14,7 +14,6 @@ const SocketManager = (socket)=>{
       // io.emit(`${userId}-connected`,true)
       console.log(user)
       addUserToOnlineUsersList(user);
-    
     });
     
     };
