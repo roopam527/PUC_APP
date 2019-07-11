@@ -13,7 +13,7 @@ const SocketManager = (socket)=>{
       //const userInfo = await User.findById(userId);
       const user = createUser({  socketId:socket.id , userId});
 
-      io.emit(`${userId}-connected`,true)
+      // io.emit(`${userId}-connected`,true)
       console.log(user)
       addUserToOnlineUsersList(user);
      // const chatHistory = await getAllPeviousChats(userInfo.chatsIdArray);
@@ -21,6 +21,7 @@ const SocketManager = (socket)=>{
     //  setUser(user, chatHistory);
     });
     };
+    
 
 const createUser = ({  socketId = null , userId = ""} = {}) => ({
       
