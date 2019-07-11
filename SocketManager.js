@@ -11,7 +11,7 @@ const {
 } = require("./events");
 const SocketManager = (socket)=>{
     global.socket = socket
-    console.log(socket.handshake.query)
+    console.log(socket.id)
    
     socket.on(USER_CONNECTED, (userId) => {
       //const userInfo = await User.findById(userId);
@@ -25,8 +25,11 @@ const SocketManager = (socket)=>{
 
     socket.on(CREATE_CHAT, async (recieverId) => {
       console.log("incoming")
+      const users = await User.find({//Fteching All the users that are part of chat
+        $or: [{ username: username }, { username: receivers }]
+      });
         const chat = new AllChats({
-          user:[socket.handshake.query.user_id,recieverId]
+          users:[socket.handshake.query.user_id,recieverId]
         })
         await chat.save()
         console.log("helllloooooooooo")
@@ -36,6 +39,7 @@ const SocketManager = (socket)=>{
 };
 
 /////////////////////////////////////////////////////////////////
+
 const createUser = ({  socketId = null , userId = ""} = {}) => ({
       
       socketId,
