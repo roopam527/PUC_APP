@@ -6,6 +6,7 @@ const User = mongoose.model("users");
 const AllChats = mongoose.model('allchats')
 const { 
   USER_CONNECTED,
+  CREATE_CHAT
   
 } = require("./events");
 const SocketManager = (socket)=>{
