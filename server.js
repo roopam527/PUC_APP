@@ -3,6 +3,8 @@ const app = express();
 const passport = require("passport");
 const mongoose = require("mongoose");
 const keys = require("./config/keys");
+const socket = require("socket.io");
+var server = require("http").Server(app);
 const session = require('express-session');
 const MongoStore = require("connect-mongo")(session);
 const bodyParser = require('body-parser');
@@ -10,6 +12,7 @@ require("./models/users");
 require("./models/challenges");
 require("./services/passport");
 
+var io = module.exports.io = require('socket.io')(server)
 
 
 app.use(bodyParser.urlencoded({
@@ -40,6 +43,14 @@ const challengeRoute = require("./routes/challengeRoutes");
 app.use("/auth", authRoutes);
 app.use("/user",userRoutes);
 app.use("/challenge",challengeRoute)
-app.listen(PORT, () => {
-  console.log("Server is listening at", PORT);
+// app.listen(PORT, () => {
+//   console.log("Server is listening at", PORT);
+// });
+
+server.listen(PORT, () => {
+  console.log("Server is started!",process.env.NODE_ENV,process.env.PORT);
 });
+
+
+const SocketManger = require('./SocketManager')
+io.on("connect", SocketManger) 

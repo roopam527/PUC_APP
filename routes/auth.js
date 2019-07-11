@@ -19,7 +19,7 @@ router.post(
 
     
       //console.log(res.info)
-      const token = jwt.sign({username:user.username,userId:user._id},config.JWT_KEY,{expiresIn:'24h'});
+      const token = jwt.sign({username:user.username,userId:user._id},config.JWT_KEY,{expiresIn:'240h'});
         res.status(200).json({
           token:token,
           expiresIn : "240h",
@@ -60,14 +60,19 @@ let user = await User.findOne({$or: [
   return res.status(501).send({ error: "this email or username is already registered" });
 });
 
-router.post('reset_password',requireLogin,(req,res)=>{
-  bcrypt.compare(req.body.password, req.userData.password, (err, isMatch) => {
+router.post('/reset_password',requireLogin,async (req,res)=>{
+  const user = await  User.findById(req.userData.userId)
+  bcrypt.compare(req.body.password, user.password,async (err, isMatch) => {
     if (err) throw err;
     
     if (isMatch) {
-      return done(null, user);
+      user.password = bcrypt.hashSync(req.body.new_password);
+      await user.save();
+      return res.status(200).json({
+        message:"done"
+      })
     } else {
-      return done(null, false, {error: 'Password incorrect' });
+      return res.status(422).json({error: 'Password incorrect' });
     }
   });
 })
