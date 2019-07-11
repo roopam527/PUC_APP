@@ -26,7 +26,7 @@ const SocketManager = (socket)=>{
     socket.on(CREATE_CHAT, async (recieverId) => {
       console.log("incoming")
       const users = await User.find({//Fteching All the users that are part of chat
-        $or: [{ username: username }, { username: receivers }]
+        $or: [{ username: socket.handshake.query.user_id }, { username: recieverId }]
       });
         const chat = new AllChats({
           users:[socket.handshake.query.user_id,recieverId]
