@@ -24,11 +24,13 @@ const SocketManager = (socket)=>{
 
 
     socket.on(CREATE_CHAT, async (recieverId) => {
+      console.log("incoming")
         const chat = new AllChats({
           user:[socket.handshake.query.user_id,recieverId]
         })
         await chat.save()
         console.log("helllloooooooooo")
+        
     });
     
 };
