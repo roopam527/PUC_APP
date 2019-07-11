@@ -14,13 +14,9 @@ const SocketManager = (socket)=>{
       // io.emit(`${userId}-connected`,true)
       console.log(user)
       addUserToOnlineUsersList(user);
-     // const chatHistory = await getAllPeviousChats(userInfo.chatsIdArray);
-
-    //  setUser(user, chatHistory);
+    
     });
-    // socket.on("CREATE_CHAT",(senderId,recieverId)=>{
-
-    // })
+    
     };
 
 
