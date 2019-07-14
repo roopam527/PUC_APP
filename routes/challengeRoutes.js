@@ -34,12 +34,18 @@ router.post('/create',requireLogin,(req,res,next) =>{
         filetype: req.body.filetype,
         given_to : req.body.given_to.map((user)=>{
             return { user_id:user};
-        })
-        
+        }),
+
 
         //comment for commit
     
-	});
+    });
+    req.body.given_to.forEach(async element => {
+       const user = await  User.findById(element)
+       user.My_Challenges.push(challenge._id)
+       await user.save();
+
+    });
 	challenge.save().then(createdPost => {
 		res.status(200).json({
 			message:"Challenge added successfully",
@@ -67,6 +73,16 @@ router.get('/fetch/:username',(req,res,next) => {
          message: "Fetching Challenge failed"
       });
     });
+});
+
+router.get("/available_challenges/:id",requireLogin, (req, res, next) =>{
+   try{
+        res.status(200).json({
+            msg:"Called"
+        })
+   } catch(error){
+
+   }
 });
 
 router.get('/fetch_my_challenges/:id',requireLogin,async (req,res)=>{

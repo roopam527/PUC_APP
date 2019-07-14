@@ -59,6 +59,11 @@ const userSchema = mongoose.Schema({
     level:{
         type:Number,
         default:0
+    },
+    My_Challenges:{
+        type:[Schema.Types.ObjectId],
+        ref:"challenges",
+        default:[]
     }
 
 });
