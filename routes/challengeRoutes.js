@@ -74,28 +74,31 @@ router.get('/fetch/:username',(req,res,next) => {
 });
 
 router.get("/available_challenges/:id",requireLogin, async (req, res) =>{
-  
     try{
-        let chalenge = await User.findById(req.params.id)
-        chalenge = await Promise.all(chalenge.My_Challenges.map(async (id) =>{
+            let chalenge = await User.findById(req.params.id)
+            chalenge = await Promise.all(chalenge.My_Challenges.map(async (id) =>{
             let data = await Challenge.findById(id);
-        data = JSON.parse(JSON.stringify(data))
-            delete data['given_to'];
-            console.log(data)
-
-            let dp = await User.findById(data['creator']).select('profile_pic');
+            data = JSON.parse(JSON.stringify(data))
+            data.given_to = data.given_to.filter(({user_id,status})=>{
+                console.log(typeof(user_id),typeof(req.params.id))
+                if(user_id != req.params.id)
+                    return false
+               return true
+            })
+            //delete data['given_to'];
+            let dp = await User.findById(data['creator']).select('profile_pic username');
             dp  = JSON.parse(JSON.stringify(dp))
-            let name = await User.findById(data['creator']).select('username');
-            name = JSON.parse(JSON.stringify(name))
-            //Object.assign(data,dp);
-            return Object.assign(data,dp,name);
+            // let name = await User.findById(data['creator']).select('username');
+            // name = JSON.parse(JSON.stringify(name))
 
+            return Object.assign(data,dp);
         }))
         res.status(200).json(chalenge)
    } catch(error){
-
    }
 });
+
+router.post('/result')
 
 router.get('/fetch_my_challenges/:id',requireLogin,async (req,res)=>{
     //add try and catch in fetch_my_challenges.s

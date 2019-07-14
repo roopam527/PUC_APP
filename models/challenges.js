@@ -26,14 +26,13 @@ const challengeSchema = mongoose.Schema({
     //     default: []
     // }
 
-    given_to:  [{ 
+    given_to: [{ 
             user_id: Schema.Types.ObjectId, 
             status: { 
                  type: String, 
                  default: status[0] 
             } 
         }],
-    
     
 });
 challengeSchema.plugin(uniqueValidator);
