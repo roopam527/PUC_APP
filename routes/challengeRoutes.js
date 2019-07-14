@@ -32,7 +32,9 @@ router.post('/create',requireLogin,(req,res,next) =>{
 		description : req.body.description,
 		creator: mongoose.Types.ObjectId(req.userData.userId),
         filetype: req.body.filetype,
-        given_to : req.body.given_to
+        given_to : req.body.given_to.map((user)=>{
+            return { user};
+        })
         
 
         //comment for commit
