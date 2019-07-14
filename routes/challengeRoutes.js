@@ -44,7 +44,6 @@ router.post('/create',requireLogin,(req,res,next) =>{
        const user = await  User.findById(element)
        user.My_Challenges.push(challenge._id)
        await user.save();
-
     });
 	challenge.save().then(createdPost => {
 		res.status(200).json({
@@ -65,7 +64,6 @@ router.get('/fetch/:username',(req,res,next) => {
         }
         else {
             res.status(404).json({message:'Challenge not found'});
-
         }
     })
     .catch(error=>{
@@ -75,18 +73,27 @@ router.get('/fetch/:username',(req,res,next) => {
     });
 });
 
-router.get("/available_challenges/:id",requireLogin, (req, res, next) =>{
-   try{
-        res.status(200).json({
-            msg:"Called"
-        })
+router.get("/available_challenges/:id",requireLogin, async (req, res) =>{
+  
+    try{
+        let chalenge = await User.findById(req.params.id)
+      
+        chalenge = await Promise.all(chalenge.My_Challenges.map(async (id) =>{
+            let data = await Challenge.findById(id);
+        data = JSON.parse(JSON.stringify(data))
+
+            delete data['given_to'];
+            console.log(data)
+            return data; 
+        }))
+        res.status(200).json(chalenge)
    } catch(error){
 
    }
 });
 
 router.get('/fetch_my_challenges/:id',requireLogin,async (req,res)=>{
-    //add try and catch in fetch_my_challenges.
+    //add try and catch in fetch_my_challenges.s
     try{
         let challenges = await Challenge.find({creator:req.params.id});
     //  const user_result =  await Promise.all(challenges.map(async({given_to}) =>{

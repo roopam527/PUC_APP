@@ -29,3 +29,5 @@
 ### `PUT` /challenge/update/:id
 
 ### `DELETE` /challenge/delete/:id
+
+### 'GET' challenge/available_challenges/:id
