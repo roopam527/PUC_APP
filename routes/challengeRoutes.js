@@ -68,7 +68,7 @@ router.get('/fetch/:username',(req,res,next) => {
 });
 
 router.get('/fetch_my_challenges/:id',requireLogin,async (req,res)=>{
-
+    //add try and catch in fetch_my_challenges.
     try{
         const challenges = await Challenge.find({creator:req.params.id});
         res.status(200).json(challenges);
