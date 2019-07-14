@@ -77,14 +77,19 @@ router.get("/available_challenges/:id",requireLogin, async (req, res) =>{
   
     try{
         let chalenge = await User.findById(req.params.id)
-      
         chalenge = await Promise.all(chalenge.My_Challenges.map(async (id) =>{
             let data = await Challenge.findById(id);
         data = JSON.parse(JSON.stringify(data))
-
             delete data['given_to'];
             console.log(data)
-            return data; 
+
+            let dp = await User.findById(data['creator']).select('profile_pic');
+            dp  = JSON.parse(JSON.stringify(dp))
+            let name = await User.findById(data['creator']).select('username');
+            name = JSON.parse(JSON.stringify(name))
+            //Object.assign(data,dp);
+            return Object.assign(data,dp,name);
+
         }))
         res.status(200).json(chalenge)
    } catch(error){
@@ -177,7 +182,7 @@ router.delete('/delete/:id',requireLogin,async (req,res)=>{
     })
     }catch(err){
         return res.status(404).json({
-            message:"Failed to find Challenge"
+            message:"Failed to Challenge"
         })
     }
 
