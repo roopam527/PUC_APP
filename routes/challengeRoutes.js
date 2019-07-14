@@ -33,7 +33,7 @@ router.post('/create',requireLogin,(req,res,next) =>{
 		creator: mongoose.Types.ObjectId(req.userData.userId),
         filetype: req.body.filetype,
         given_to : req.body.given_to.map((user)=>{
-            return { user};
+            return { user_id:user};
         })
         
 
@@ -72,9 +72,26 @@ router.get('/fetch/:username',(req,res,next) => {
 router.get('/fetch_my_challenges/:id',requireLogin,async (req,res)=>{
     //add try and catch in fetch_my_challenges.
     try{
-        const challenges = await Challenge.find({creator:req.params.id});
+        let challenges = await Challenge.find({creator:req.params.id});
+    //  const user_result =  await Promise.all(challenges.map(async({given_to}) =>{
+        //        return await Promise.all( given_to.map(async ({user_id}) =>{
+        //             console.log(user_id);
+        //            await Challenge.findById(user_id)
+        //        }))
+        // }))
+        challenges = JSON.parse(JSON.stringify(challenges))
+        for(let users of challenges){
+            users.given_to = await Promise.all(users.given_to.map(async ({user_id})=>{
+                console.log(user_id)
+                return await User.findById(user_id).select('username profile_pic');
+            
+            }))
+        }
+      //  console.log(user_result);
+
         res.status(200).json(challenges);
     }catch(error){
+        console.log(error)
         res.status(500).json({
             msg:"Internal Server Error"
         })

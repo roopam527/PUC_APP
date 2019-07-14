@@ -11,20 +11,30 @@ const challengeSchema = mongoose.Schema({
         ref: 'users'
     },
     filetype: { type: String, required: true },
-    given_to: {
-        type: [{
-            user: {
-                type: [Schema.Types.ObjectId],
-                ref: 'users'
-            },
-            status: {
-                type: String,
-                default: status[0]
-            },
-          
+    // given_to: {
+    //     type: [{
+    //         user: {
+    //             type: [Schema.Types.ObjectId],
+    //             ref: 'users'
+    //         },
+    //         status: {
+    //             type: String,
+    //             default: status[0]
+    //         },
+
+    //     }],
+    //     default: []
+    // }
+
+    given_to:  [{ 
+            user_id: Schema.Types.ObjectId, 
+            status: { 
+                 type: String, 
+                 default: status[0] 
+            } 
         }],
-        default: []
-    }
+    
+    
 });
 challengeSchema.plugin(uniqueValidator);
 module.exports = mongoose.model("challenges", challengeSchema);
