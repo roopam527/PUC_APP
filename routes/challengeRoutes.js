@@ -65,8 +65,15 @@ router.get('/fetch/:username',(req,res,next) => {
 });
 
 router.get('/fetch_my_challenges/:id',requireLogin,async (req,res)=>{
-    const challenges = await Challenge.find({creator:req.params.id});
-    res.status(200).json(challenges);
+
+    try{
+        const challenges = await Challenge.find({creator:req.params.id});
+        res.status(200).json(challenges);
+    }catch(error){
+        res.status(500).json({
+            msg:"Internal Server Error"
+        })
+    }
 })
 
 // router.get('/fetch_challenges',async (req,res)=>{

@@ -45,10 +45,9 @@ router.put('/set_user_details',requireLogin,upload.single('profile_pic'),async (
     for(let key in data){
         if(!data[key]){
             delete data[key];
-
         }
     }
-    console.log(data)
+ 
     await User.findOneAndUpdate({_id:req.userData.userId},data,function(err, doc){
         if (err) return res.send(500, { message: err });
         return res.status(200).json({
