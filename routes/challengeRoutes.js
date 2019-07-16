@@ -9,142 +9,141 @@ const multer = require('multer');
 const requireLogin = require('../middlewares/requireLogin');
 
 const storage = multer.diskStorage({
-	destination: function(req,file,cb) {
-       cb(null,"./uploads/");
-	},
-	filename: function(req,file,cb) {
-		cb(null,new Date().toISOString()+file.originalname);
-	}
+    destination: function (req, file, cb) {
+        cb(null, "./uploads/");
+    },
+    filename: function (req, file, cb) {
+        cb(null, new Date().toISOString() + file.originalname);
+    }
 });
-const fileFilter = (req,file,cb) => {
-	if(file.mimetype === 'image/jpeg' || file.mimetype === 'image/png'){
-		cb(null,true);
-	}else {
-		cb(null,false);
-	}
+const fileFilter = (req, file, cb) => {
+    if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png') {
+        cb(null, true);
+    } else {
+        cb(null, false);
+    }
 };
-const upload = multer({storage:storage,fileFilter:fileFilter});
+const upload = multer({ storage: storage, fileFilter: fileFilter });
 
-router.post('/create',requireLogin,(req,res,next) =>{
-	console.log(req.file);
-	const challenge = new Challenge({
-		title : req.body.title,
-		description : req.body.description,
-		creator: mongoose.Types.ObjectId(req.userData.userId),
+router.post('/create', requireLogin, (req, res, next) => {
+    console.log(req.file);
+    const challenge = new Challenge({
+        title: req.body.title,
+        description: req.body.description,
+        creator: mongoose.Types.ObjectId(req.userData.userId),
         filetype: req.body.filetype,
-        given_to : req.body.given_to.map((user)=>{
-            return { user_id:user};
+        given_to: req.body.given_to.map((user) => {
+            return { user_id: user };
         }),
-
-
         //comment for commit
-    
     });
     req.body.given_to.forEach(async element => {
-       const user = await  User.findById(element)
-       user.My_Challenges.push(challenge._id)
-       await user.save();
+        const user = await User.findById(element)
+        user.My_Challenges.push(challenge._id)
+        await user.save();
     });
-	challenge.save().then(createdPost => {
-		res.status(200).json({
-			message:"Challenge added successfully",
-		});
-	}).catch(error => {
+    challenge.save().then(createdPost => {
+        res.status(200).json({
+            message: "Challenge added successfully",
+        });
+    }).catch(error => {
         console.log(error);
-		res.status(500).json({
-			message:"Challenge creation failed"
-		});
-	});
+        res.status(500).json({
+            message: "Challenge creation failed"
+        });
+    });
 });
 
-router.get('/fetch/:username',(req,res,next) => {
-    Challenge.findOne({username:req.params.username}).then(challenge=>{
-        if(challenge){
+router.get('/fetch/:username', (req, res, next) => {
+    Challenge.findOne({ username: req.params.username }).then(challenge => {
+        if (challenge) {
             res.status(200).json(challenge);
         }
         else {
-            res.status(404).json({message:'Challenge not found'});
+            res.status(404).json({ message: 'Challenge not found' });
         }
     })
-    .catch(error=>{
-      res.status(500).json({
-         message: "Fetching Challenge failed"
-      });
-    });
+        .catch(error => {
+            res.status(500).json({
+                message: "Fetching Challenge failed"
+            });
+        });
 });
 
-router.get("/available_challenges/:id",requireLogin, async (req, res) =>{
-    try{
-            let chalenge = await User.findById(req.params.id)
-            chalenge = await Promise.all(chalenge.My_Challenges.map(async (id) =>{
+router.get("/available_challenges/:id", requireLogin, async (req, res) => {
+    try {
+        let chalenge = await User.findById(req.params.id)
+        chalenge = await Promise.all(chalenge.My_Challenges.map(async (id) => {
+
             let data = await Challenge.findById(id);
-            data = JSON.parse(JSON.stringify(data))
-            data.given_to = data.given_to.filter(({user_id,status})=>{
-                console.log(typeof(user_id),typeof(req.params.id))
-                if(user_id != req.params.id)
+            data = JSON.parse(JSON.stringify(data));
+            console.log(data)
+            data.given_to = data.given_to.filter(({ user_id, status }) => {
+
+                if (user_id != req.params.id)
                     return false
-               return true
+                return true
             })
             //delete data['given_to'];
             let dp = await User.findById(data['creator']).select('profile_pic username');
-            dp  = JSON.parse(JSON.stringify(dp))
+            dp = JSON.parse(JSON.stringify(dp))
             // let name = await User.findById(data['creator']).select('username');
             // name = JSON.parse(JSON.stringify(name))
-            return Object.assign(data,dp);
+            return Object.assign(data, { profile_pic: dp.profile_pic, username: dp.username });
         }))
         res.status(200).json(chalenge)
-   } catch(error){
-   }
+    } catch (error) {
+    }
 });
 
-router.post('/result',requireLogin,async(req,res) =>{
-    try{   
+router.post('/result', requireLogin, async (req, res) => {
+    try {
         //console.log(req.body) 
         const challenge = await Challenge.findById(req.body.challenge_id)
-        const given_to = challenge.given_to.map((data)=>{
-            if(JSON.parse(JSON.stringify(data.user_id)) === req.body.id){
+        const given_to = challenge.given_to.map((data) => {
+            if (JSON.parse(JSON.stringify(data.user_id)) === req.body.id) {
                 data.status = req.body.status
             }
         });
-        challenge.save().then((data)=>{
+        challenge.save().then((data) => {
         });
         res.status(404).json({
-            Set_Response:"true"
+            Set_Response: "true"
         })
-    
-    }catch(error){
+
+    } catch (error) {
         console.log(error)
         res.status(404).json({
-            Set_Response:"false"
+            Set_Response: "false"
         })
-        }
+    }
 })
 
-router.get('/fetch_my_challenges/:id',requireLogin,async (req,res)=>{
+router.get('/fetch_my_challenges/:id', requireLogin, async (req, res) => {
     //add try and catch in fetch_my_challenges.s
-    try{
-        let challenges = await Challenge.find({creator:req.params.id});
-    //  const user_result =  await Promise.all(challenges.map(async({given_to}) =>{
+    try {
+        let challenges = await Challenge.find({ creator: req.params.id });
+        //  const user_result =  await Promise.all(challenges.map(async({given_to}) =>{
         //        return await Promise.all( given_to.map(async ({user_id}) =>{
         //             console.log(user_id);
         //            await Challenge.findById(user_id)
         //        }))
         // }))
         challenges = JSON.parse(JSON.stringify(challenges))
-        for(let users of challenges){
-            users.given_to = await Promise.all(users.given_to.map(async ({user_id})=>{
+        for (let users of challenges) {
+            users.given_to = await Promise.all(users.given_to.map(async ({ user_id }) => {
                 console.log(user_id)
                 return await User.findById(user_id).select('username profile_pic');
-            
+
             }))
         }
-      //  console.log(user_result);
+        //  console.log(user_result);
 
         res.status(200).json(challenges);
-    }catch(error){
+    } catch (error) {
         console.log(error)
         res.status(500).json({
-            msg:"Internal Server Error"
+            msg: "Internal Server Error"
         })
     }
 })
@@ -153,7 +152,7 @@ router.get('/fetch_my_challenges/:id',requireLogin,async (req,res)=>{
 //     let all_challenges =await Challenge.find({});
 //     all_challenges.stringyfy().parse()
 //     console.log(all_challenges)
-    
+
 //     for(let challenge of all_challenges){
 //         let data = await Promise.all(challenge['given_to'].map(async (id)=> {
 //             const user = await User.findById(id);
@@ -170,42 +169,42 @@ router.get('/fetch_my_challenges/:id',requireLogin,async (req,res)=>{
 //     //  })
 //     return res.status(200).json(all_challenges);
 // })
-router.put('/update/:id',(req,res,next) => {
+router.put('/update/:id', (req, res, next) => {
     const challenge_new_data = {
-        title:req.body.title,
-        discription:req.body.description,
-        filetype:req.body.filetype
+        title: req.body.title,
+        discription: req.body.description,
+        filetype: req.body.filetype
     }
-    for(let key in challenge_new_data){
-        if(!challenge_new_data[key]){
+    for (let key in challenge_new_data) {
+        if (!challenge_new_data[key]) {
             delete challenge_new_data[key];
         }
     }
-    Challenge.findById(req.params.id).then(challenge=>{
-        if(challenge){
-            Object.assign(challenge,challenge_new_data);
+    Challenge.findById(req.params.id).then(challenge => {
+        if (challenge) {
+            Object.assign(challenge, challenge_new_data);
             res.status(200).json(challenge);
         }
         else {
-            res.status(404).json({message:'Challenge not found'});
+            res.status(404).json({ message: 'Challenge not found' });
         }
     })
-    .catch(error=>{
-      res.status(500).json({
-         message: "Fetching Challenge failed"
-      });
-    });
+        .catch(error => {
+            res.status(500).json({
+                message: "Fetching Challenge failed"
+            });
+        });
 });
 
-router.delete('/delete/:id',requireLogin,async (req,res)=>{
-    try{
-    await Challenge.deleteOne({_id:req.params.id});
-    return res.status(200).json({
-        message:"Challenge deleted successfully"
-    })
-    }catch(err){
+router.delete('/delete/:id', requireLogin, async (req, res) => {
+    try {
+        await Challenge.deleteOne({ _id: req.params.id });
+        return res.status(200).json({
+            message: "Challenge deleted successfully"
+        })
+    } catch (err) {
         return res.status(404).json({
-            message:"Failed to Challenge"
+            message: "Failed to Challenge"
         })
     }
 
