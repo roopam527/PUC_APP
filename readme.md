@@ -32,7 +32,7 @@
 
 ### 'GET' challenge/available_challenges/:id
 
-### 'PUT' challenge/result
+### 'POST' challenge/result
 {
 	"challenge_id" : "5d2d9ed78a96200017d8816a",
 	"id" : "5d25c858376dfa0017d93144",
