@@ -90,7 +90,6 @@ router.get("/available_challenges/:id",requireLogin, async (req, res) =>{
             dp  = JSON.parse(JSON.stringify(dp))
             // let name = await User.findById(data['creator']).select('username');
             // name = JSON.parse(JSON.stringify(name))
-
             return Object.assign(data,dp);
         }))
         res.status(200).json(chalenge)
@@ -98,7 +97,28 @@ router.get("/available_challenges/:id",requireLogin, async (req, res) =>{
    }
 });
 
-router.post('/result')
+router.post('/result',requireLogin,async(req,res) =>{
+    try{   
+        //console.log(req.body) 
+        const challenge = await Challenge.findById(req.body.challenge_id)
+        const given_to = challenge.given_to.map((data)=>{
+            if(JSON.parse(JSON.stringify(data.user_id)) === req.body.id){
+                data.status = req.body.status
+            }
+        });
+        challenge.save().then((data)=>{
+        });
+        res.status(404).json({
+            Set_Response:"true"
+        })
+    
+    }catch(error){
+        console.log(error)
+        res.status(404).json({
+            Set_Response:"false"
+        })
+        }
+})
 
 router.get('/fetch_my_challenges/:id',requireLogin,async (req,res)=>{
     //add try and catch in fetch_my_challenges.s
