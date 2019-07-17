@@ -108,12 +108,12 @@ router.post('/result', requireLogin, async (req, res) => {
         challenge.save().then((data) => {
         });
         res.status(404).json({
-            Set_Response: "true"
+            msg: "true"
         })
     } catch (error) {
         console.log(error)
         res.status(404).json({
-            Set_Response: "false"
+            msg: "false"
         })
     }
 })
@@ -131,9 +131,9 @@ router.get('/fetch_my_challenges/:id', requireLogin, async (req, res) => {
         // challenges = JSON.parse(JSON.stringify(challenges))
         // console.log(challenges);
         for (let users of challenges) {
-            console.log(users.given_to)
+        
             users.given_to = await Promise.all(users.given_to.map(async ({ user_id }) => {
-                console.log(user_id)
+               
                 return await User.findById(user_id).select('username profile_pic');
 
             }))
