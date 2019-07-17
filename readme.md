@@ -7,13 +7,13 @@
 ### `PUT` /user/set_user_details
 
 ### `GET` /user/get_all_users
-```
 
-### `GET` /user/get_all_followers/:id
 
-### `GET` /user/get_all_following/:id
+### `GET` /user/get_all_followers?id=xyz
 
- ```
+### `GET` /user/get_all_following?id=xyz
+
+
 ### `GET` /user/get_user/:id
 
 ### `POST` /user/follow/:id
