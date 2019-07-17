@@ -107,7 +107,7 @@ router.post('/result', requireLogin, async (req, res) => {
         });
         challenge.save().then((data) => {
         });
-        res.status(404).json({
+        res.status(200).json({
             message: "true"
         })
     } catch (error) {
