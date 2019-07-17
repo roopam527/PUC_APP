@@ -108,12 +108,12 @@ router.post('/result', requireLogin, async (req, res) => {
         challenge.save().then((data) => {
         });
         res.status(404).json({
-            msg: "true"
+            message: "true"
         })
     } catch (error) {
         console.log(error)
         res.status(404).json({
-            msg: "false"
+            message: "false"
         })
     }
 })
