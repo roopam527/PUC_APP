@@ -254,7 +254,14 @@ router.post(
 );
 
 /*router.get("/fetch_doneChallenges/:id", require, (req, res) => {
-     const user = User.findById(req.params.id); 
+     const user = User.findById(req.params.id).then(user => {
+      if (user) {
+        Object.assign(challenge, challenge_new_data);
+        res.status(200).json(challenge);
+      } else {
+        res.status(404).json({ message: "Challenge not found" });
+      }
+    }); 
 }
 )*/
 
