@@ -253,4 +253,9 @@ router.post(
   }
 );
 
+/*router.get("/fetch_doneChallenges/:id", require, (req, res) => {
+     const user = User.findById(req.params.id); 
+}
+)*/
+
 module.exports = router;
