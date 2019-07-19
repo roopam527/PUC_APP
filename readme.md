@@ -1,4 +1,4 @@
-### `POST`  /auth/login
+### `POST` /auth/login
 
 ### `POST` /auth/register
 
@@ -8,11 +8,9 @@
 
 ### `GET` /user/get_all_users
 
-
 ### `GET` /user/get_all_followers?id=xyz
 
 ### `GET` /user/get_all_following?id=xyz
-
 
 ### `GET` /user/get_user/:id
 
@@ -33,9 +31,15 @@
 ### `GET` challenge/available_challenges/:id
 
 ### `POST` challenge/result
+
 {
-	"challenge_id" : "5d2d9ed78a96200017d8816a",
-	"id" : "5d25c858376dfa0017d93144",
-	"status" : "ACCEPTED",
-	"time" : "12.2155"
+"challenge_id" : "5d2d9ed78a96200017d8816a",
+"id" : "5d25c858376dfa0017d93144",
+"status" : "ACCEPTED",
+"time" : "12.2155"
 }
+creator - 5d25c858376dfa0017d93144
+description - dof thiosf
+given_to - 5d25c83d376dfa0017d9314
+challenge_id - 5d2b02e4d0cd4c40308be95c
+challenge_pic - url
