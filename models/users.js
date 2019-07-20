@@ -61,12 +61,13 @@ const userSchema = mongoose.Schema({
     type: [Schema.Types.ObjectId],
     ref: "challenges",
     default: []
+  },
+  Done_Challenges: {
+    type: [Schema.Types.ObjectId],
+    ref: "doneChallenges",
+    default: [],
+    required: true
   }
-  /*Done_Challenges:{
-        type:[Schema.Types.ObjectId],
-        ref:"doneChallenges",
-        default:[]
-    }*/
 });
 userSchema.plugin(uniqueValidator);
 

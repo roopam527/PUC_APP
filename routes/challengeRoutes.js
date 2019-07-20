@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 const router = express.Router();
 const uuidv4 = require("uuid/v4");
 const path = require("path");
+ObjectId = require("mongodb").ObjectID;
 // const challenge = require("../models/challenges");
 const Challenge = mongoose.model("challenges");
 const doneChallenge = mongoose.model("doneChallenges"); //completed challenge
@@ -39,7 +40,7 @@ router.post("/create", requireLogin, (req, res, next) => {
     creator: mongoose.Types.ObjectId(req.userData.userId),
     filetype: req.body.filetype,
     given_to: req.body.given_to.map(user => {
-      return { user_id: user }; //we don"t have the user id. We have the userName or not?
+      return { user_id: user };
     })
     //comment for commit
   });
@@ -240,12 +241,18 @@ router.post(
         image: req.file.path,
         challenge_id: req.body.challenge_id
       });
-      console.log(challenge);
-      console.log("hoo");
-      console.log(challenge);
+      console.log(req.userData.username);
       challenge.save().then(data => {
         res.json({ message: "Challenge completion saved" });
       });
+      const user = await User.findById(req.body.given_to);
+      //user = JSON.parse(JSON.stringify(user));
+      console.log("1");
+      user.Done_Challenges.push(req.body.challenge_id);
+      await user.save();
+      console.log(user);
+      console.log(user.Done_Challenges);
+      console.log("2");
     } catch (error) {
       console.log(error.message);
       return res.json({ message: "Unable to save challenge completion" });
@@ -253,16 +260,85 @@ router.post(
   }
 );
 
-/*router.get("/fetch_doneChallenges/:id", require, (req, res) => {
-     const user = User.findById(req.params.id).then(user => {
-      if (user) {
-        Object.assign(challenge, challenge_new_data);
-        res.status(200).json(challenge);
-      } else {
-        res.status(404).json({ message: "Challenge not found" });
-      }
-    }); 
-}
-)*/
+router.get("/fetch_doneChallenges/:id", requireLogin, async (req, res) => {
+  try {
+    console.log("1");
+    console.log(req.userData.username);
+    //const id = ObjectId("5d25c83d376dfa0017d9314");
+    //var id = mongoose.Types.ObjectId("5d25c83d376dfa0017d9314");
+    // var _id = mongoose.mongo.BSONPure.ObjectID.fromHexString(
+    //   "5d25c83d376dfa0017d9314"
+    // );
+    //var _id = mongoose.mongo.ObjectId("5d25c83d376dfa0017d9314");
 
+    let user = await User.findOne({ _id: req.params.id /*userData.userId*/ });
+
+    console.log("2");
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    } else {
+      user = JSON.parse(JSON.stringify(user));
+      //console.log(user.Done_Challenges);
+      //console.log(user);
+      //let details = [];
+      let details = await Promise.all(
+        user.Done_Challenges.map(async challenge => {
+          let ChalDetail = {
+            creator_pic: "",
+            creator_id: "",
+            given_to_pic: "",
+            given_to_id: req.params.id,
+            challenge_pic: "",
+            title: "",
+            description: "",
+            caption: ""
+          };
+          console.log("3");
+          const chal = await Challenge.findById(challenge);
+          // console.log(chal.creator);
+          ChalDetail.creator_id = chal.creator;
+          //console.log(ChalDetail.creator_id);
+          ChalDetail.description = chal.description;
+          ChalDetail.title = chal.title;
+          //console.log(ChalDetail);
+          const user = await User.findById(chal.creator);
+          ChalDetail.creator_pic = user.profile_pic;
+
+          console.log(ChalDetail);
+          console.log("4");
+
+          ChalDetail.given_to_pic = user.profile_pic;
+          console.log(ChalDetail);
+          console.log("5");
+          let DoneChallenge = await doneChallenge.findOne({
+            challenge_id: challenge
+          });
+          DoneChallenge = JSON.parse(JSON.stringify(DoneChallenge));
+          console.log(DoneChallenge);
+          console.log("5.1");
+          ChalDetail.challenge_pic = DoneChallenge.image;
+          //console.log(DoneChallenge);
+          ChalDetail.caption = DoneChallenge.description;
+          console.log(DoneChallenge.image);
+          console.log(ChalDetail.challenge_pic);
+          console.log(ChalDetail);
+          console.log("6");
+          //details.push(ChalDetail);
+          //console.log(details);
+          return ChalDetail;
+        })
+      );
+      console.log("7");
+      console.log(details);
+      res.json(details);
+    }
+  } catch (err) {
+    console.log(err);
+    return res.json({
+      message: "Unable to fetch the completed challenges"
+    });
+  }
+});
+
+router.post("/accept_decline");
 module.exports = router;

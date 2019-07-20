@@ -285,4 +285,16 @@ router.post("/unfollow/:id", requireLogin, async (req, res) => {
   }
 });
 
+router.get("/all_info/:id", async (req, res) => {
+  try {
+    console.log("1");
+    const user = await User.findById(req.params.id);
+    console.log("2");
+    res.json(user);
+  } catch (err) {
+    console.log(err.message);
+    res.json({ message: "Unable to fetch user" });
+  }
+});
+
 module.exports = router;

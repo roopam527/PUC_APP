@@ -1,29 +1,23 @@
-
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
-const moment = require('moment')
+const moment = require("moment");
 const allChatsSchema = new Schema({
-  name:{
-    type:String,
-    default:"personal",
+  name: {
+    type: String,
+    default: "personal"
   },
-  users:{
-      type:[
-        {type: Schema.Types.ObjectId, ref: 'users'}
-      ]
+  users: {
+    type: [{ type: Schema.Types.ObjectId, ref: "users" }]
   },
-  time_of_creation:{
-    type:String,
-    default:moment().format('LLL')
+  time_of_creation: {
+    type: String,
+    default: moment().format("LLL")
   },
-//   date_of_creation:{
-//     type:String
+  //   date_of_creation:{
+  //     type:String
 
-//   },
-  messages:[
-    {type: Schema.Types.ObjectId, ref: 'messages'}
-  ]
+  //   },
+  messages: [{ type: Schema.Types.ObjectId, ref: "messages" }]
 });
 
-
-mongoose.model('allchats', allChatsSchema);
+mongoose.model("allchats", allChatsSchema);
