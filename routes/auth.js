@@ -34,6 +34,7 @@ router.post("/login", (req, res, next) => {
 // })
 
 router.post("/register", async (req, res) => {
+  console.log(req.body);
   let user = await User.findOne({
     $or: [{ email: req.body.email }, { username: req.body.username }]
   }).catch(() => {
