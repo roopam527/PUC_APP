@@ -50,11 +50,11 @@ router.post("/register", async (req, res) => {
       .catch(err => {
         console.log(err);
       });
-    return res.status(200).send({ message: "done" });
+    return res.status(200).json({ message: "done" });
   }
   return res
     .status(501)
-    .send({ error: "this email or username is already registered" });
+    .json({ message: "this email or username is already registered" });
 });
 
 router.post("/reset_password", requireLogin, async (req, res) => {

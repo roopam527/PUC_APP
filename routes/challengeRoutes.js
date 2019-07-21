@@ -146,9 +146,7 @@ router.get("/fetch_my_challenges/:id", requireLogin, async (req, res) => {
     // console.log(challenges);
     console.log(challenges);
     for (let users of challenges) {
-      users.given_to = await Promise.all(
-        //what is the need for promise.all here?
-
+      const data = await Promise.all(
         users.given_to.map(async ({ user_id }) => {
           return await User.findById(user_id).select("username profile_pic");
         })
