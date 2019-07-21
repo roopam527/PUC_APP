@@ -110,27 +110,27 @@ router.get("/available_challenges/:id", requireLogin, async (req, res) => {
   } catch (error) {}
 });
 
-router.post("/result", requireLogin, async (req, res) => {
-  try {
-    //console.log(req.body)
-    const challenge = await Challenge.findById(req.body.challenge_id);
-    const given_to = challenge.given_to.map(data => {
-      if (JSON.parse(JSON.stringify(data.user_id)) === req.body.id) {
-        //mongoose object to javascript object
-        data.status = req.body.status; //but given_to doesn't have status field?
-      }
-    });
-    challenge.save().then(data => {});
-    res.status(200).json({
-      message: "true"
-    });
-  } catch (error) {
-    console.log(error);
-    res.status(404).json({
-      message: "false"
-    });
-  }
-});
+// router.post("/result", requireLogin, async (req, res) => {
+//   try {
+//     //console.log(req.body)
+//     const challenge = await Challenge.findById(req.body.challenge_id);
+//     const given_to = challenge.given_to.map(data => {
+//       if (JSON.parse(JSON.stringify(data.user_id)) === req.body.id) {
+//         //mongoose object to javascript object
+//         data.status = req.body.status; //but given_to doesn't have status field?
+//       }
+//     });
+//     challenge.save().then(data => {});
+//     res.status(200).json({
+//       message: "true"
+//     });
+//   } catch (error) {
+//     console.log(error);
+//     res.status(404).json({
+//       message: "false"
+//     });
+//   }
+// });
 
 router.get("/fetch_my_challenges/:id", requireLogin, async (req, res) => {
   //add try and catch in fetch_my_challenges.s
@@ -201,6 +201,7 @@ router.put("/update/:id", (req, res, next) => {
     .then(challenge => {
       if (challenge) {
         Object.assign(challenge, challenge_new_data);
+        challenge.save();
         res.status(200).json(challenge);
       } else {
         res.status(404).json({ message: "Challenge not found" });
@@ -339,6 +340,62 @@ router.get("/fetch_doneChallenges/:id", requireLogin, async (req, res) => {
     });
   }
 });
+// accept or decline by the given_to.
+router.post("/accept_decline", requireLogin, async (req, res) => {
+  try {
+    let challenge = await Challenge.findById(req.body.challenge_id);
+    challenge = JSON.parse(JSON.stringify(challenge));
+    NewChallenge = new Challenge();
+    NewChallenge = challenge;
+    console.log(NewChallenge);
+    if (req.body.status === "ACCEPTED") {
+      console.log("1");
+      for (let key in NewChallenge.given_to) {
+        if (NewChallenge.given_to[key].user_id === req.body.user_id) {
+          console.log("1.1");
 
-router.post("/accept_decline");
+          NewChallenge.given_to[key].status = "ACCEPTED";
+          await Challenge.findByIdAndUpdate(
+            req.body.challenge_id,
+            { $set: NewChallenge },
+            { new: true }
+          );
+        }
+        console.log(challenge);
+        console.log(challenge.given_to[key]);
+        /*challenge.given_to.ForEach(given_to => {
+        
+        }
+      });*/
+      }
+    }
+    if (req.body.status === "REJECTED") {
+      console.log("1");
+      for (let key in NewChallenge.given_to) {
+        if (NewChallenge.given_to[key].user_id === req.body.user_id) {
+          console.log("1.1");
+
+          NewChallenge.given_to[key].status = "REJECTED";
+          await Challenge.findByIdAndUpdate(
+            req.body.challenge_id,
+            { $set: NewChallenge },
+            { new: true }
+          );
+        }
+        console.log(challenge);
+        console.log(challenge.given_to[key]);
+        /*challenge.given_to.ForEach(given_to => {
+        
+        }
+      });*/
+      }
+    }
+
+    //await challenge.save();
+    res.json({ message: "Status updated" });
+  } catch (err) {
+    console.log(err);
+    res.json({ message: "Unable to update the status" });
+  }
+});
 module.exports = router;
