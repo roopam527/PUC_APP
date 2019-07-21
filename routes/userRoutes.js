@@ -309,15 +309,18 @@ router.post("/block", requireLogin, async (req, res) => {
     // var circularObj = {};
     // circularObj.circularRef = circularObj;
     // circularObj.list = [circularObj, circularObj];
-
-    let user = User.findById(req.body.user_id);
-    user = JSON.parse(JSON.stringify(user));
+    console.log("1");
+    let user = await User.findById(req.body.user_id);
+    console.log(user.Blocked);
     console.log(user);
+    //user = JSON.parse(JSON.stringify(user));
+
     //user = stringify(user);
     console.log(user.Blocked);
-    user = JSON.parse(JSON.stringify(user));
+    //user = JSON.parse(JSON.stringify(user));
     user.Blocked.push(req.body.to_be_blocked);
     //Object.assign(user, userBlocked);
+
     await user.save();
     res.status(200).json({ message: "User blocked" });
   } catch (err) {

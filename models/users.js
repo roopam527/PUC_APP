@@ -70,7 +70,6 @@ const userSchema = mongoose.Schema({
   },
   Blocked: {
     type: [String],
-    ref: "blocked",
     default: []
   }
 });
