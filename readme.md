@@ -30,7 +30,9 @@
 
 ### `GET` challenge/available_challenges/:id
 
-### `POST` challenge/result
+### `POST` challenge/accept_decline
+
+### `POST` user/block
 
 {
 "challenge_id" : "5d2d9ed78a96200017d8816a",
