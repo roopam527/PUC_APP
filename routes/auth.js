@@ -49,12 +49,12 @@ router.post("/register", async (req, res) => {
       .save()
       .catch(err => {
         console.log(err);
+        return res
+          .status(501)
+          .json({ message: "this email or username is already registered" });
       });
     return res.status(200).json({ message: "done" });
   }
-  return res
-    .status(501)
-    .json({ message: "this email or username is already registered" });
 });
 
 router.post("/reset_password", requireLogin, async (req, res) => {
