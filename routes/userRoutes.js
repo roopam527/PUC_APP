@@ -8,7 +8,7 @@ const salt = bcrypt.genSaltSync(10);
 const multer = require("multer");
 const path = require("path");
 const uuidv4 = require("uuid/v4");
-
+const Challenge = mongoose.model("challenges");
 const storage = multer.diskStorage({
   destination: function(req, file, cb) {
     cb(null, "./uploads/profile_pics");
@@ -204,6 +204,12 @@ router.get("/get_user/:id", requireLogin, async (req, res) => {
   user.followers = user.followers.length;
   user.followings = user.followings.length;
   user.blocked_accounts = user.blocked_accounts.length;
+  console.log("1");
+  let challenge = await Challenge.find({ creator: req.params.id });
+
+  console.log("2");
+  user.given = challenge.length;
+  console.log("3");
   delete user["password"];
   return res.status(200).json(user);
 });
