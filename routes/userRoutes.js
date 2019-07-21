@@ -8,6 +8,7 @@ const salt = bcrypt.genSaltSync(10);
 const multer = require("multer");
 const path = require("path");
 const uuidv4 = require("uuid/v4");
+var stringify = require("json-stringify-safe");
 const Challenge = mongoose.model("challenges");
 const storage = multer.diskStorage({
   destination: function(req, file, cb) {
@@ -300,6 +301,28 @@ router.get("/all_info/:id", async (req, res) => {
   } catch (err) {
     console.log(err.message);
     res.json({ message: "Unable to fetch user" });
+  }
+});
+
+router.post("/block", requireLogin, async (req, res) => {
+  try {
+    // var circularObj = {};
+    // circularObj.circularRef = circularObj;
+    // circularObj.list = [circularObj, circularObj];
+
+    let user = User.findById(req.body.user_id);
+    user = JSON.parse(JSON.stringify(user));
+    console.log(user);
+    //user = stringify(user);
+    console.log(user.Blocked);
+    user = JSON.parse(JSON.stringify(user));
+    user.Blocked.push(req.body.to_be_blocked);
+    //Object.assign(user, userBlocked);
+    await user.save();
+    res.status(200).json({ message: "User blocked" });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Unable to block user" });
   }
 });
 

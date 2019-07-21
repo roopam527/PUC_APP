@@ -148,9 +148,25 @@ router.get("/fetch_my_challenges/:id", requireLogin, async (req, res) => {
     for (let users of challenges) {
       const data = await Promise.all(
         users.given_to.map(async ({ user_id }) => {
-          return await User.findById(user_id).select("username profile_pic");
+          //return await User.findById(user_id).select("username profile_pic");
+          // let person = await User.findById(user_id).select(
+          //   "username profile_pic"
+          // );
+          // console.log("2");
+          // console.log(person);
+          // return person;
+          /*let send = {};
+          let person = await User.findById(user_id);
+          console.log(person);
+          console.log("1");
+          send.username = person.username;
+          send.profile_pic = person.profile_pic;
+          return send;*/
         })
       );
+      // console.log("2");
+      //console.log(data);
+      //return data;
     }
     //  console.log(user_result);
 
@@ -248,6 +264,7 @@ router.post(
       //user = JSON.parse(JSON.stringify(user));
       console.log("1");
       user.Done_Challenges.push(req.body.challenge_id);
+      console.log("2");
       await user.save();
       console.log(user);
       console.log(user.Done_Challenges);
@@ -301,12 +318,16 @@ router.get("/fetch_doneChallenges/:id", requireLogin, async (req, res) => {
           ChalDetail.title = chal.title;
           //console.log(ChalDetail);
           const user = await User.findById(chal.creator);
+
+          const given_to = await User.findById(req.params.id);
           ChalDetail.creator_pic = user.profile_pic;
+          ChalDetail.creator_name = user.username;
 
           console.log(ChalDetail);
           console.log("4");
 
-          ChalDetail.given_to_pic = user.profile_pic;
+          ChalDetail.given_to_pic = given_to.profile_pic;
+          ChalDetail.given_to_name = given_to.username;
           console.log(ChalDetail);
           console.log("5");
           let DoneChallenge = await doneChallenge.findOne({

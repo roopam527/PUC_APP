@@ -67,6 +67,11 @@ const userSchema = mongoose.Schema({
     ref: "doneChallenges",
     default: [],
     required: true
+  },
+  Blocked: {
+    type: [String],
+    ref: "blocked",
+    default: []
   }
 });
 userSchema.plugin(uniqueValidator);
