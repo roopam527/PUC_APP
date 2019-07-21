@@ -47,13 +47,17 @@ router.post("/register", async (req, res) => {
       password: bcrypt.hashSync(req.body.password, salt)
     })
       .save()
+      .then(() => {
+        return res.status(200).json({ message: "done" });
+      })
       .catch(err => {
         console.log(err);
-        return res
-          .status(501)
-          .json({ message: "this email or username is already registered" });
+        return res.status(501).json({ message: "Something Went wrong" });
       });
-    return res.status(200).json({ message: "done" });
+  } else {
+    return res
+      .status(501)
+      .json({ message: "this email or username is already registered" });
   }
 });
 
