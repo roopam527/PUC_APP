@@ -36,28 +36,28 @@ router.post("/login", (req, res, next) => {
 
 router.post(
   "/register",
-  [
-    check("username", "Please enter a name")
-      .not()
-      .isEmpty(),
-    check("email", "Please enter a valid email address").isEmail(),
+  // [
+  //   check("username", "Please enter a name")
+  //     .not()
+  //     .isEmpty(),
+  //   check("email", "Please enter a valid email address").isEmail(),
 
-    check(
-      "password",
-      "The password must contain atleast 8 characters"
-    ).isLength({ min: 8 })
-  ],
+  //   check(
+  //     "password",
+  //     "The password must contain atleast 8 characters"
+  //   ).isLength({ min: 8 })
+  // ],
   async (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
+    // const errors = validationResult(req);
+    // if (!errors.isEmpty()) {
+    //   return res.status(400).json({ errors: errors.array() });
+    // }
 
     console.log(req.body);
     let user = await User.findOne({
       $or: [{ email: req.body.email }, { username: req.body.username }]
     }).catch(() => {
-      return res.status(400).send({ error: "Something Went wrong" });
+      return res.status(200).send({ error: "Something Went wrong" });
     });
 
     if (!user) {

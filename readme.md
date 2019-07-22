@@ -34,6 +34,10 @@
 
 ### `POST` user/block
 
+### `GET` user/show_blocked/:id
+
+### `POST` user/unblock
+
 {
 "challenge_id" : "5d2d9ed78a96200017d8816a",
 "id" : "5d25c858376dfa0017d93144",

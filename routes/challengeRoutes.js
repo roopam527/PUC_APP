@@ -249,20 +249,28 @@ router.post(
     console.log("hii");
     console.log(req.file);
     try {
-      const challenge = new doneChallenge({
+      let challenge = new doneChallenge({
         description: req.body.description,
         creator: req.body.creator,
         given_to: req.body.given_to,
-        image: req.file.path,
+        image: "/" + req.file.path,
         challenge_id: req.body.challenge_id
       });
+      // if (req.file.path) {
+      //   Object.assign(challenge, { image: "/" + req.file.path });
+      // }
       console.log(req.userData.username);
+      console.log("0");
+      console.log(challenge.image);
+
       challenge.save().then(data => {
-        res.json({ message: "Challenge completion saved" });
+        res.json(data);
+        //res.json({ message: "Challenge completion saved" });
       });
-      const user = await User.findById(req.body.given_to);
+      let user = await User.findById(req.body.given_to);
       //user = JSON.parse(JSON.stringify(user));
       console.log("1");
+      console.log(user);
       user.Done_Challenges.push(req.body.challenge_id);
       console.log("2");
       await user.save();
@@ -320,7 +328,9 @@ router.get("/fetch_doneChallenges/:id", requireLogin, async (req, res) => {
           const user = await User.findById(chal.creator);
 
           const given_to = await User.findById(req.params.id);
+
           ChalDetail.creator_pic = user.profile_pic;
+
           ChalDetail.creator_name = user.username;
 
           console.log(ChalDetail);
@@ -333,7 +343,7 @@ router.get("/fetch_doneChallenges/:id", requireLogin, async (req, res) => {
           let DoneChallenge = await doneChallenge.findOne({
             challenge_id: challenge
           });
-          DoneChallenge = JSON.parse(JSON.stringify(DoneChallenge));
+          //   DoneChallenge = JSON.parse(JSON.stringify(DoneChallenge));
           console.log(DoneChallenge);
           console.log("5.1");
           ChalDetail.challenge_pic = DoneChallenge.image;
@@ -341,8 +351,8 @@ router.get("/fetch_doneChallenges/:id", requireLogin, async (req, res) => {
           ChalDetail.caption = DoneChallenge.description;
           console.log(DoneChallenge.image);
           console.log(ChalDetail.challenge_pic);
-          console.log(ChalDetail);
-          console.log("6");
+          //console.log(ChalDetail);
+          // console.log("6");
           //details.push(ChalDetail);
           //console.log(details);
           return ChalDetail;
