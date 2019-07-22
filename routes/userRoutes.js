@@ -1,5 +1,6 @@
 const express = require("express");
 const mongoose = require("mongoose");
+const { check, validationResult } = require("express-validator");
 const router = express.Router();
 const User = mongoose.model("users"); //users is a collection name
 const requireLogin = require("../middlewares/requireLogin");

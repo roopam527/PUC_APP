@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const passport = require("passport");
+const { check, validationResult } = require("express-validator");
 const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
 const User = mongoose.model("users"); //users is a collection name
@@ -33,34 +34,53 @@ router.post("/login", (req, res, next) => {
 
 // })
 
-router.post("/register", async (req, res) => {
-  console.log(req.body);
-  let user = await User.findOne({
-    $or: [{ email: req.body.email }, { username: req.body.username }]
-  }).catch(() => {
-    return res.status(400).send({ error: "Something Went wrong" });
-  });
+router.post(
+  "/register",
+  [
+    check("username", "Please enter a name")
+      .not()
+      .isEmpty(),
+    check("email", "Please enter a valid email address").isEmail(),
 
-  if (!user) {
-    user = await new User({
-      username: req.body.username,
-      email: req.body.email,
-      password: bcrypt.hashSync(req.body.password, salt)
-    })
-      .save()
-      .then(() => {
-        return res.status(200).json({ message: "done" });
+    check(
+      "password",
+      "The password must contain atleast 8 characters"
+    ).isLength({ min: 8 })
+  ],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    console.log(req.body);
+    let user = await User.findOne({
+      $or: [{ email: req.body.email }, { username: req.body.username }]
+    }).catch(() => {
+      return res.status(400).send({ error: "Something Went wrong" });
+    });
+
+    if (!user) {
+      user = await new User({
+        username: req.body.username,
+        email: req.body.email,
+        password: bcrypt.hashSync(req.body.password, salt)
       })
-      .catch(err => {
-        console.log(err);
-        return res.status(501).json({ message: "Something Went wrong" });
-      });
-  } else {
-    return res
-      .status(501)
-      .json({ message: "this email or username is already registered" });
+        .save()
+        .then(() => {
+          return res.status(200).json({ message: "done" });
+        })
+        .catch(err => {
+          console.log(err);
+          return res.status(501).json({ message: "Something Went wrong" });
+        });
+    } else {
+      return res
+        .status(200)
+        .json({ message: "this email or username is already registered" });
+    }
   }
-});
+);
 
 router.post("/reset_password", requireLogin, async (req, res) => {
   const user = await User.findById(req.userData.userId);
