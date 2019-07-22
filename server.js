@@ -25,7 +25,8 @@ app.use(
   })
 );
 app.use(bodyParser.json());
-app.use("/uploads", express.static("uploads"));
+app.use("/uploads", express.static("uploads/profile_pics"));
+app.use("/uploads", express.static("uploads/challenge_pics"));
 
 mongoose.connect(keys.MONGO_URI, { useNewUrlParser: true });
 mongoose.connection

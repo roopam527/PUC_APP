@@ -321,11 +321,37 @@ router.post("/block", requireLogin, async (req, res) => {
     user.Blocked.push(req.body.to_be_blocked);
     //Object.assign(user, userBlocked);
 
-    await user.save();
+    await use.save();
     res.status(200).json({ message: "User blocked" });
   } catch (err) {
     console.log(err);
     res.status(500).json({ message: "Unable to block user" });
+  }
+});
+
+router.get("/show_blocked/:id", requireLogin, async (req, res) => {
+  try {
+    let user = await User.findById(req.params.id);
+    res.status(200).json(user.Blocked);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Unable to fetch the blocked users" });
+  }
+});
+router.post("/unblock", requireLogin, async (req, res) => {
+  try {
+    let user = await User.findById(req.body.user_id);
+    for (let key in user.Blocked) {
+      if (user.Blocked[key] === req.body.unblock_id) {
+        user.Blocked.splice(key, 1);
+        await user.save();
+        console.log(user.Blocked);
+        return res.status(200).json({ message: "User successfully unblocked" });
+      }
+    }
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Unable to unblock the user!!" });
   }
 });
 
