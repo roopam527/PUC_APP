@@ -19,6 +19,7 @@ const challengeSchema = mongoose.Schema({
         type: String,
         default: status[0] //status date
       }
+      // date:
     }
   ] //challenge date
 });

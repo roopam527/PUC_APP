@@ -134,6 +134,9 @@ router.post("/reg_gmail_fb", async (req, res, next) => {
       console.log("1.9");
       res.status(200).json({ message: "User successfully created!!!" });
     } else {
+      if (person.username === req.body.id) {
+        return res.status(200).json({ message: "Username not set!!!" });
+      }
       console.log("2");
       console.log(person._id);
       const payload = {
