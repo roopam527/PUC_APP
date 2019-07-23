@@ -389,6 +389,13 @@ router.post("/accept_decline", requireLogin, async (req, res) => {
             { $set: NewChallenge },
             { new: true }
           );
+          let user = User.findById(req.body.user_id);
+          user.circle_level += 25;
+          if (user.circle_level === 100) {
+            user.circle_level = 0;
+            user.level += 1;
+          }
+          user.save();
         }
         console.log(challenge);
         console.log(challenge.given_to[key]);

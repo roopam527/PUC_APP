@@ -76,21 +76,21 @@ router.get("/get_all_users", requireLogin, async (req, res) => {
       .skip(currentPage * pageSize)
       .limit(pageSize);
     console.log(req.userData.userId);
-    users = users.map(user => {
-      //   if(JSON.parse(JSON.stringify(user._id)) === JSON.parse(JSON.stringify(loggedInUser._id))){
-      //       return null
-      //   }
-      console.log(user._id);
-      if (user._id !== req.userData.userId) {
-        return {
-          _id: user._id,
-          username: user.username,
-          profile_pic: user.profile_pic,
-          bio: user.bio,
-          following: LoggedInUser.followings.includes(user._id)
-        };
-      }
-    });
+    // users = users.map(user => {
+    //   //   if(JSON.parse(JSON.stringify(user._id)) === JSON.parse(JSON.stringify(loggedInUser._id))){
+    //   //       return null
+    //   //   }
+    //   console.log(user._id);
+    //   if (user._id !== req.userData.userId) {
+    //     return {
+    //       _id: user._id,
+    //       username: user.username,
+    //       profile_pic: user.profile_pic,
+    //       bio: user.bio,
+    //       following: LoggedInUser.followings.includes(user._id)
+    //     };
+    //   }
+    // });
   } else {
     users = await User.find({})
       .skip(currentPage * pageSize)

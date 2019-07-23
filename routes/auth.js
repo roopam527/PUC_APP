@@ -178,6 +178,7 @@ router.post("/gflogin", async (req, res) => {
         { expiresIn: "240h" }
       );
       res.status(200).json({
+        message: "",
         token: token,
         expiresIn: "240h",
         userId: user._id
