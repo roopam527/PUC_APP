@@ -22,6 +22,10 @@ const userSchema = mongoose.Schema({
     type: Object,
     default: {}
   },
+  circle_level: {
+    type: Number,
+    default: 0
+  },
   bio: {
     type: String,
     default: "Hey there , I am using PUC APP"

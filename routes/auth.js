@@ -145,7 +145,7 @@ router.post("/reg_gmail_fb", async (req, res, next) => {
 
       const token = jwt.sign(payload, config.JWT_KEY, { expiresIn: "240h" });
       res.status(200).json({
-        message: "User already registered!!",
+        message: "",
         token: token,
         expiresIn: "240h",
         userId: person._id
