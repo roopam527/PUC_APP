@@ -216,6 +216,7 @@ router.get("/get_user/:id", requireLogin, async (req, res) => {
 
   console.log("2");
   user.given = challenge.length;
+
   console.log("3");
   delete user["password"];
   return res.status(200).json(user);
