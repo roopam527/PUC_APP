@@ -80,13 +80,15 @@ router.get("/get_all_users", requireLogin, async (req, res) => {
       //   if(JSON.parse(JSON.stringify(user._id)) === JSON.parse(JSON.stringify(loggedInUser._id))){
       //       return null
       //   }
-      return {
-        _id: user._id,
-        username: user.username,
-        profile_pic: user.profile_pic,
-        bio: user.bio,
-        following: LoggedInUser.followings.includes(user._id)
-      };
+      if (user._id === req.userData.userId) {
+        return {
+          _id: user._id,
+          username: user.username,
+          profile_pic: user.profile_pic,
+          bio: user.bio,
+          following: LoggedInUser.followings.includes(user._id)
+        };
+      }
     });
   } else {
     users = await User.find({})
