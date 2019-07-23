@@ -186,8 +186,9 @@ router.get("/get_all_followings", requireLogin, async (req, res) => {
       i++
     ) {
       if (user.followings[i]) {
+        console.log(user.followings[i]);
         result = await User.findById(user.followings[i]._id);
-
+        console.log(result);
         followings.push({
           _id: result._id,
           username: result.username,

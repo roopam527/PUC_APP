@@ -143,7 +143,7 @@ router.get("/available_challenges/:id", requireLogin, async (req, res) => {
 router.get("/fetch_my_challenges/:id", requireLogin, async (req, res) => {
   //add try and catch in fetch_my_challenges.s
   try {
-    let challenges = await Challenge.find({ creator: req.params.id });
+    let challenges = await Challenge.find({ creator: req.params.id }); //creator find
     //  const user_result =  await Promise.all(challenges.map(async({given_to}) =>{
     //        return await Promise.all( given_to.map(async ({user_id}) =>{
     //             console.log(user_id);
@@ -183,7 +183,8 @@ router.get("/fetch_my_challenges/:id", requireLogin, async (req, res) => {
           return send;*/
         })
       );
-
+      users.given_to = all_users;
+      console.log(users.given_to);
       // console.log("2");
       //console.log(data);
       //return data;
