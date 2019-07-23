@@ -120,6 +120,7 @@ router.post("/reg_gmail_fb", async (req, res, next) => {
       console.log("1");
       let user = new User({
         username: req.body.id,
+        email: req.body.id,
 
         login: {
           via: req.body.via,
