@@ -152,11 +152,22 @@ router.get("/fetch_my_challenges/:id", requireLogin, async (req, res) => {
     // // }))
     // challenges = JSON.parse(JSON.stringify(challenges))
     // console.log(challenges);
+    challenges = JSON.parse(JSON.stringify(challenges));
     console.log(challenges);
     for (let users of challenges) {
-      const data = await Promise.all(
-        users.given_to.map(async ({ user_id }) => {
-          return await User.findById(user_id).select("username profile_pic");
+      const all_users = await Promise.all(
+        users.given_to.map(async data => {
+          return await User.findById(data.user_id).select(
+            "username profile_pic"
+          );
+          // let person = await User.findById(given_to.user_id);
+          // let object = {};
+          // object.username = person.username;
+          // object.profile_pic = person.profile_pic;
+          // console.log(object);
+          // Object.assign(given_to, object);
+          // console.log(given_to);
+          // return given_to;
           // let person = await User.findById(user_id).select(
           //   "username profile_pic"
           // );
@@ -172,6 +183,7 @@ router.get("/fetch_my_challenges/:id", requireLogin, async (req, res) => {
           return send;*/
         })
       );
+
       // console.log("2");
       //console.log(data);
       //return data;
