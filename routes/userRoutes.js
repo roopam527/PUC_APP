@@ -206,12 +206,15 @@ router.get("/get_all_followings", requireLogin, async (req, res) => {
 });
 
 router.get("/get_user/:id", requireLogin, async (req, res) => {
+  console.log("1");
   let user = await User.findById(req.params.id);
+  console.log("1");
+  console.log(user);
   user = JSON.parse(JSON.stringify(user));
   user.followers = user.followers.length;
   user.followings = user.followings.length;
   user.blocked_accounts = user.blocked_accounts.length;
-  console.log("1");
+
   let challenge = await Challenge.find({ creator: req.params.id });
 
   console.log("2");

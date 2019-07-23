@@ -32,7 +32,7 @@ const fileFilter = (req, file, cb) => {
 
 const upload = multer({ storage: storage, fileFilter: fileFilter });
 
-router.post("/create", requireLogin, (req, res, next) => {
+router.post("/create", requireLogin, async (req, res, next) => {
   console.log(req.file);
   const challenge = new Challenge({
     title: req.body.title,
