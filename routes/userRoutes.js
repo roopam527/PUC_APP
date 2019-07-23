@@ -9,7 +9,7 @@ const salt = bcrypt.genSaltSync(10);
 const multer = require("multer");
 const path = require("path");
 const uuidv4 = require("uuid/v4");
-var stringify = require("json-stringify-safe");
+//var stringify = require("json-stringify-safe");
 const Challenge = mongoose.model("challenges");
 const storage = multer.diskStorage({
   destination: function(req, file, cb) {

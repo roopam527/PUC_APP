@@ -107,4 +107,84 @@ router.get("/error", (req, res) => {
   res.status(422).json(req.info);
 });
 
+router.post("/reg_gmail_fb", async (req, res, next) => {
+  try {
+    const login = {
+      via: req.body.via,
+      id: req.body.id
+    };
+    console.log(login);
+    let person = await User.findOne({ login: login });
+    console.log(person);
+    if (!person) {
+      console.log("1");
+      let user = new User({
+        username: req.body.id,
+
+        login: {
+          via: req.body.via,
+          id: req.body.id
+        },
+        profile_pic: req.body.profile_pic
+      });
+      console.log("1.7");
+
+      await user.save();
+      console.log("1.9");
+      res.status(200).json({ message: "User successfully created!!!" });
+    } else {
+      console.log("2");
+      console.log(person._id);
+      const payload = {
+        user: {
+          userId: person._id,
+          username: person.username
+        }
+      };
+
+      const token = jwt.sign(payload, config.JWT_KEY, { expiresIn: "240h" });
+      res.status(200).json({
+        token: token,
+        expiresIn: "240h",
+        userId: person._id
+      });
+    }
+  } catch (err) {
+    console.log(err);
+    res.status(501).json({ message: "Unable to register or verify user!!!" });
+  }
+});
+
+router.post("/gflogin", async (req, res) => {
+  try {
+    const login = {
+      via: req.body.via,
+      id: req.body.id
+    };
+    let person = await User.findOne({ username: req.body.username });
+    if (person) {
+      return res
+        .status(200)
+        .json({ message: "Oops!! Username already taken." });
+    } else {
+      let user = await User.findOne({ login: login });
+      user.username = req.body.username;
+      user.save();
+      const token = jwt.sign(
+        { username: user.username, userId: user._id },
+        config.JWT_KEY,
+        { expiresIn: "240h" }
+      );
+      res.status(200).json({
+        token: token,
+        expiresIn: "240h",
+        userId: user._id
+      });
+      res.status(200).json({ message: "Username successfully saved!!" });
+    }
+  } catch (err) {
+    console.log(err);
+    res.status(501).json({ message: "Unable to register or verify user!!!" });
+  }
+});
 module.exports = router;

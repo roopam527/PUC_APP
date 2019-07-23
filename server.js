@@ -35,6 +35,7 @@ mongoose.connection
   .on("error", error => console.log("Error connecting to MongoLab:", error));
 
 const passport_config = require("./services/passport");
+
 passport_config(passport);
 app.use(passport.initialize());
 app.use(passport.session());
