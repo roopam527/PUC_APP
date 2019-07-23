@@ -44,6 +44,14 @@ router.post("/create", requireLogin, (req, res, next) => {
     })
     //comment for commit
   });
+  let user = await User.findById(req.userData.userId);
+  user.circle_level += 25;
+  if (user.circle_level === 100) {
+    user.circle_level = 0;
+    user.level += 1;
+  }
+  console.log(user.circle_level);
+  user.save();
   req.body.given_to.forEach(async user_id => {
     const user = await User.findById(user_id);
     user.My_Challenges.push(challenge._id);
