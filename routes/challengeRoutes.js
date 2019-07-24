@@ -115,7 +115,12 @@ router.get("/available_challenges/:id", requireLogin, async (req, res) => {
       })
     );
     res.status(200).json(chalenge);
-  } catch (error) {}
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      msg: "Internal Server Error"
+    });
+  }
 });
 
 // router.post("/result", requireLogin, async (req, res) => {
@@ -416,7 +421,7 @@ router.post("/accept_decline", requireLogin, async (req, res) => {
           person.save();
 
           NewChallenge.given_to[key].status = "ACCEPTED";
-          NewChallenge.given_to[key].date = Date.now;
+          NewChallenge.given_to[key].date = Date.now();
           await Challenge.findByIdAndUpdate(
             req.body.challenge_id,
             { $set: NewChallenge },
