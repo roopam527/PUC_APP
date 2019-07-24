@@ -149,7 +149,7 @@ router.post("/reg_gmail_fb", async (req, res, next) => {
       // console.log(payload);
       // const token = jwt.sign(payload, config.JWT_KEY, { expiresIn: "240h" });
       const token = jwt.sign(
-        { username: user.username, userId: user._id },
+        { username: person.username, userId: person._id },
         config.JWT_KEY,
         { expiresIn: "240h" }
       );
