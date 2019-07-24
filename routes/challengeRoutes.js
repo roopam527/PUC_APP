@@ -411,6 +411,9 @@ router.post("/accept_decline", requireLogin, async (req, res) => {
       for (let key in NewChallenge.given_to) {
         if (NewChallenge.given_to[key].user_id === req.body.user_id) {
           console.log("1.1");
+          const person = await User.findById(req.body.user_id);
+          person.Accepted += 1;
+          person.save();
 
           NewChallenge.given_to[key].status = "ACCEPTED";
           NewChallenge.given_to[key].date = Date.now;

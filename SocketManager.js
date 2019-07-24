@@ -7,8 +7,11 @@ const AllChats = mongoose.model("allchats");
 const { USER_CONNECTED, CREATE_CHAT } = require("./events");
 const SocketManager = socket => {
   global.socket = socket;
+  console.log("in socket.io");
   console.log(socket.id);
   console.log(socket);
+
+  socket.emit("online", socket.handshake.query.user_id);
 
   socket.on(USER_CONNECTED, userId => {
     //const userInfo = await User.findById(userId);

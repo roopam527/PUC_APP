@@ -28,6 +28,10 @@ const userSchema = mongoose.Schema({
     type: Number,
     default: 0
   },
+  // no_of_accepted:{
+  //   type:Number,
+  //   default:0
+  // },
   bio: {
     type: String,
     default: "Hey there , I am using PUC APP"
@@ -57,7 +61,7 @@ const userSchema = mongoose.Schema({
     default: null
   },
   Accepted: {
-    type: String,
+    type: Number,
     default: 0
   },
   given: {
