@@ -157,9 +157,17 @@ router.get("/fetch_my_challenges/:id", requireLogin, async (req, res) => {
     for (let users of challenges) {
       const all_users = await Promise.all(
         users.given_to.map(async data => {
-          return await User.findById(data.user_id).select(
-            "username profile_pic"
-          );
+          //return await User.findById(data.user_id).select(
+          // "username profile_pic"
+          //);
+          const person = await User.findById(data.user_id);
+          let object = {
+            username: person.username,
+            profile_pic: person.profile_pic,
+            user_id: data.user_id,
+            status: data.status
+          };
+          return object;
           // let person = await User.findById(given_to.user_id);
           // let object = {};
           // object.username = person.username;
