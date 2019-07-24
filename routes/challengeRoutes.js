@@ -112,8 +112,8 @@ router.get("/available_challenges/:id", requireLogin, async (req, res) => {
         return Object.assign(data, {
           creator_pic: dp.profile_pic,
           creator_name: dp.username,
-          reciever_pic: chalenge.profile_pic,
-          reciever_name: chalenge.username
+          receiver_pic: chalenge.profile_pic,
+          receiver_name: chalenge.username
         });
       })
     );
