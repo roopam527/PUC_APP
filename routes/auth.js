@@ -140,14 +140,19 @@ router.post("/reg_gmail_fb", async (req, res, next) => {
       }
       console.log("2");
       console.log(person._id);
-      const payload = {
-        user: {
-          userId: person._id,
-          username: person.username
-        }
-      };
-
-      const token = jwt.sign(payload, config.JWT_KEY, { expiresIn: "240h" });
+      // const payload = {
+      //   user: {
+      //     userId: person._id,
+      //     username: person.username
+      //   }
+      // };
+      // console.log(payload);
+      // const token = jwt.sign(payload, config.JWT_KEY, { expiresIn: "240h" });
+      const token = jwt.sign(
+        { username: user.username, userId: user._id },
+        config.JWT_KEY,
+        { expiresIn: "240h" }
+      );
       res.status(200).json({
         message: "",
         token: token,
