@@ -8,6 +8,7 @@ const { USER_CONNECTED, CREATE_CHAT } = require("./events");
 const SocketManager = socket => {
   global.socket = socket;
   console.log(socket.id);
+  console.log(socket);
 
   socket.on(USER_CONNECTED, userId => {
     //const userInfo = await User.findById(userId);
