@@ -70,6 +70,7 @@ router.get("/get_all_users", requireLogin, async (req, res) => {
   const pageSize = +req.query.pagesize || 20;
   const currentPage = +req.query.page || 0;
   const LoggedInUser = await User.findById(req.userData.userId);
+  console.log(userData.userId);
 
   if (req.query.search) {
     users = await User.find({ username: new RegExp(req.query.search, "i") })
