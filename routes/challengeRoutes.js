@@ -92,8 +92,9 @@ router.get("/available_challenges/:id", requireLogin, async (req, res) => {
   //This route??
   try {
     let chalenge = await User.findById(req.params.id);
-    chalenge = await Promise.all(
-      chalenge.My_Challenges.map(async id => {
+    person = chalenge;
+    person = await Promise.all(
+      person.My_Challenges.map(async id => {
         let data = await Challenge.findById(id);
         data = JSON.parse(JSON.stringify(data));
         console.log(data);
@@ -109,12 +110,18 @@ router.get("/available_challenges/:id", requireLogin, async (req, res) => {
         // let name = await User.findById(data['creator']).select('username');
         // name = JSON.parse(JSON.stringify(name))
         return Object.assign(data, {
-          profile_pic: dp.profile_pic,
-          username: dp.username
+          creator_pic: dp.profile_pic,
+          creator_name: dp.username,
+          reciever_pic: chalenge.profile_pic,
+          reciever_name: chalenge.username
         });
       })
     );
-    res.status(200).json(chalenge);
+    // Object.assign(person, {
+    //   reciever_pic: chalenge.profile_pic,
+    //   reciever_name: chalenge.username
+    // });
+    res.status(200).json(person);
   } catch (error) {
     console.log(error);
     res.status(500).json({
