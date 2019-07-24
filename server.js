@@ -9,6 +9,19 @@ const session = require("express-session");
 const MongoStore = require("connect-mongo")(session);
 const bodyParser = require("body-parser");
 
+const http = http.createServer(app);
+//const io = socket.io(server);
+
+// let usersockets = {};
+
+// io.on("connection", socket => {
+//   console.log("New socket formed with id:" + socket.id);
+//   socket.emit("connected");
+//   usersockets[data.user] = socket.id;
+//   socket.on("login", data => {
+//     io.emit("online", data.user);
+//   });
+// });
 require("./models/users");
 
 require("./models/allchats");

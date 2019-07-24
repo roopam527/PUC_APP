@@ -24,7 +24,11 @@ const challengeSchema = mongoose.Schema({
         default: ""
       }
     }
-  ] //challenge date
+  ], //challenge date
+  date: {
+    type: String,
+    default: Date.now()
+  }
 });
 challengeSchema.plugin(uniqueValidator);
 module.exports = mongoose.model("challenges", challengeSchema);
