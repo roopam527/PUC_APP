@@ -9,7 +9,7 @@ const session = require("express-session");
 const MongoStore = require("connect-mongo")(session);
 const bodyParser = require("body-parser");
 
-const http = http.createServer(app);
+//const http = http.createServer(app);
 //const io = socket.io(server);
 
 // let usersockets = {};
