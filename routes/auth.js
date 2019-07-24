@@ -113,6 +113,7 @@ router.post("/reg_gmail_fb", async (req, res, next) => {
       via: req.body.via,
       id: req.body.id
     };
+    console.log("hello from backend");
     console.log(login);
     let person = await User.findOne({ login: login });
     console.log(person);
