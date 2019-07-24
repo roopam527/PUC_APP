@@ -19,8 +19,10 @@ const userSchema = mongoose.Schema({
     //required: true
   },
   login: {
-    type: Object,
-    default: {}
+    via: { type: String, default: "" },
+    id: { type: String, default: "" }
+    // type: Object,
+    // default: {}
   },
   circle_level: {
     type: Number,

@@ -465,4 +465,74 @@ router.post("/accept_decline", requireLogin, async (req, res) => {
     res.json({ message: "Unable to update the status" });
   }
 });
+
+router.get("/accepted_pending/:id", requireLogin, async (req, res) => {
+  //add try and catch in fetch_my_challenges.s
+  try {
+    let challenges = await Challenge.find({ creator: req.params.id }); //creator find
+    //  const user_result =  await Promise.all(challenges.map(async({given_to}) =>{
+    //        return await Promise.all( given_to.map(async ({user_id}) =>{
+    //             console.log(user_id);
+    //            await Challenge.findById(user_id)
+    //        }))
+    // // }))
+    // challenges = JSON.parse(JSON.stringify(challenges))
+    // console.log(challenges);
+    challenges = JSON.parse(JSON.stringify(challenges));
+    console.log(challenges);
+    for (let users of challenges) {
+      const all_users = await Promise.all(
+        users.given_to.map(async data => {
+          //return await User.findById(data.user_id).select(
+          // "username profile_pic"
+          //);
+          if (data.status === "ACCEPTED") {
+            const person = await User.findById(data.user_id);
+            let object = {
+              username: person.username,
+              profile_pic: person.profile_pic,
+              user_id: data.user_id,
+              status: data.status
+            };
+            return object;
+          }
+          // let person = await User.findById(given_to.user_id);
+          // let object = {};
+          // object.username = person.username;
+          // object.profile_pic = person.profile_pic;
+          // console.log(object);
+          // Object.assign(given_to, object);
+          // console.log(given_to);
+          // return given_to;
+          // let person = await User.findById(user_id).select(
+          //   "username profile_pic"
+          // );
+          // console.log("2");
+          // console.log(person);
+          // return person;
+          /*let send = {};
+          let person = await User.findById(user_id);
+          console.log(person);
+          console.log("1");
+          send.username = person.username;
+          send.profile_pic = person.profile_pic;
+          return send;*/
+        })
+      );
+      users.given_to = all_users;
+      console.log(users.given_to);
+      // console.log("2");
+      //console.log(data);
+      //return data;
+    }
+    //  console.log(user_result);
+
+    res.status(200).json(challenges);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      msg: "Internal Server Error"
+    });
+  }
+});
 module.exports = router;
