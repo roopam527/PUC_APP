@@ -10,6 +10,7 @@ module.exports = (req, res, next) => {
       username: decodedToken.username,
       userId: decodedToken.userId
     };
+    console.log(req.userData);
     console.log("authorization complete");
     next();
   } catch (error) {
