@@ -11,13 +11,19 @@ const SocketManager = socket => {
   console.log(socket.id);
   console.log(socket);
 
-  socket.emit("online", socket.handshake.query.user_id);
+  //socket.emit("online", socket.handshake.query.user_id);
 
   socket.on(USER_CONNECTED, userId => {
     //const userInfo = await User.findById(userId);
-    const user = createUser({ socketId: socket.id, userId });
+    //const user = createUser({ socketId: socket.id, userId });
     // io.emit(`${userId}-connected`,true)
-    console.log(user);
+
+    console.log(userId);
+    console.log(socket.id);
+    const user = {
+      userId: userId,
+      SocketId: socket.id
+    };
     addUserToOnlineUsersList(user);
   });
 
@@ -46,14 +52,18 @@ const createUser = ({ socketId = null, userId = "" } = {}) => ({
   userId
 });
 
-const isUserAlreadyOnline = username => {
-  return username in onlineUsers;
-};
+// const isUserAlreadyOnline = username => {
+//   return username in onlineUsers;
+// };
 
-const addUserToOnlineUsersList = ({ socketId, userId, activeChat = "" }) => {
-  if (!isUserAlreadyOnline(socketId)) {
-    onlineUsers[socketId] = { userId, activeChat };
+const addUserToOnlineUsersList = user => {
+  // if (!isUserAlreadyOnline(socketId)) {
+  //   onlineUsers[socketId] = { userId, activeChat };
+  // }
+  if (!onlineUsers[user.socketId]) {
+    onlineUsers[user.socketId] = user.userId;
   }
+  console.log(onlineUsers);
 };
 
 module.exports = SocketManager;
