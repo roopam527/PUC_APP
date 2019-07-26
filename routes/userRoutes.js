@@ -340,11 +340,11 @@ router.post("/block", requireLogin, async (req, res) => {
     user.Blocked.push(req.body.to_be_blocked);
     //Object.assign(user, userBlocked);
 
-    await use.save();
+    await user.save();
     res.status(200).json({ message: "User blocked" });
   } catch (err) {
     console.log(err);
-    res.status(500).json({ message: "Unable to block user" });
+    res.status(200).json({ message: "Unable to block user" });
   }
 });
 
@@ -354,7 +354,7 @@ router.get("/show_blocked/:id", requireLogin, async (req, res) => {
     res.status(200).json(user.Blocked);
   } catch (err) {
     console.log(err);
-    res.status(500).json({ message: "Unable to fetch the blocked users" });
+    res.status(200).json({ message: "Unable to fetch the blocked users" });
   }
 });
 router.post("/unblock", requireLogin, async (req, res) => {
@@ -370,7 +370,7 @@ router.post("/unblock", requireLogin, async (req, res) => {
     }
   } catch (err) {
     console.log(err);
-    res.status(500).json({ message: "Unable to unblock the user!!" });
+    res.status(200).json({ message: "Unable to unblock the user!!" });
   }
 });
 
