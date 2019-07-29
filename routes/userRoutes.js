@@ -241,8 +241,9 @@ router.post("/follow/:id", requireLogin, async (req, res) => {
     let followed_user = await User.findById(req.params.id);
     let followings = JSON.parse(JSON.stringify(loggedInUser.followings));
     const followed_user_id = JSON.parse(JSON.stringify(followed_user._id));
+    console.log('Account is : ' + followed_user.isPrivate);
 
-    if (!followings.includes(followed_user_id)) {
+    if (!followings.includes(followed_user_id) && !followed_user.isPrivate) {
       followed_user.followers.push(
         mongoose.Types.ObjectId(req.userData.userId)
       );
@@ -253,6 +254,10 @@ router.post("/follow/:id", requireLogin, async (req, res) => {
         message: `${loggedInUser.username} started following ${
           followed_user.username
         }`
+      });
+    } else if(followed_user.isPrivate) {
+      return res.status(200).json({
+        error: `${followed_user.username} has private account!!`
       });
     } else {
       return res.status(200).json({
