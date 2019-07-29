@@ -428,7 +428,7 @@ router.post("/accept_decline", requireLogin, async (req, res) => {
           person.save();
 
           NewChallenge.given_to[key].status = "ACCEPTED";
-          NewChallenge.given_to[key].date = Date.now();
+          NewChallenge.given_to[key].date = JSON.parse(JSON.stringify(Date.now()));
           await Challenge.findByIdAndUpdate(
             req.body.challenge_id,
             { $set: NewChallenge },
