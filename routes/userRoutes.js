@@ -216,22 +216,55 @@ router.get("/get_all_followings", requireLogin, async (req, res) => {
 
 router.get("/get_user/:id", requireLogin, async (req, res) => {
   console.log("1");
-  let user = await User.findById(req.params.id);
-  console.log("1");
-  console.log(user);
-  user = JSON.parse(JSON.stringify(user));
-  user.followers = user.followers.length;
-  user.followings = user.followings.length;
-  user.blocked_accounts = user.blocked_accounts.length;
-
-  let challenge = await Challenge.find({ creator: req.params.id });
-
-  console.log("2");
-  user.given = challenge.length;
-
-  console.log("3");
-  delete user["password"];
-  return res.status(200).json(user);
+  try {
+    let loggedInUser = await User.findById(req.userData.userId);
+    let user = await User.findById(req.params.id);
+    let userId = JSON.parse(JSON.stringify(req.params.id));
+     console.log("1");
+      console.log(user);
+      user = JSON.parse(JSON.stringify(user));
+      user.followers = user.followers.length;
+      user.followings = user.followings.length;
+      user.blocked_accounts = user.blocked_accounts.length;
+    
+      let challenge = await Challenge.find({ creator: req.params.id });
+    
+      console.log("2");
+      user.given = challenge.length;
+      console.log("3");
+      delete user["password"];
+  
+    if (!user.isPrivate) {
+     
+      return res.status(200).json(user);
+    } else {
+      let follower = false;
+      for (let i of loggedInUser.followings) {
+        i = JSON.parse(JSON.stringify(i));
+        console.log(user._id + " : " + i)
+        if (userId === i) {
+          follower = true;
+        }
+      }
+  
+      for (let i of loggedInUser.followers) {
+        i = JSON.parse(JSON.stringify(i));
+        console.log(user._id + " : " + i)
+        if (userId === i) {
+          follower = true;
+        }
+      }
+  
+      if(!follower) {
+        return res.status(200).json({error : 'User account is private'});
+      } else {
+      return res.status(200).json(user);
+      }
+    }
+  } catch (err) {
+    return res.status(200).json({error : err});
+  }
+ 
 });
 
 router.post("/follow/:id", requireLogin, async (req, res) => {
