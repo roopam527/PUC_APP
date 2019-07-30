@@ -216,22 +216,58 @@ router.get("/get_all_followings", requireLogin, async (req, res) => {
 
 router.get("/get_user/:id", requireLogin, async (req, res) => {
   console.log("1");
-  let user = await User.findById(req.params.id);
-  console.log("1");
-  console.log(user);
-  user = JSON.parse(JSON.stringify(user));
-  user.followers = user.followers.length;
-  user.followings = user.followings.length;
-  user.blocked_accounts = user.blocked_accounts.length;
-
-  let challenge = await Challenge.find({ creator: req.params.id });
-
-  console.log("2");
-  user.given = challenge.length;
-
-  console.log("3");
-  delete user["password"];
-  return res.status(200).json(user);
+  try {
+    let loggedInUser = await User.findById(req.userData.userId);
+    let user = await User.findById(req.params.id);
+    let userId = JSON.parse(JSON.stringify(req.params.id));
+     console.log("1");
+      console.log(user);
+      user = JSON.parse(JSON.stringify(user));
+      user.followers = user.followers.length;
+      user.followings = user.followings.length;
+      user.blocked_accounts = user.blocked_accounts.length;
+    
+      let challenge = await Challenge.find({ creator: req.params.id });
+    
+      console.log("2");
+      user.given = challenge.length;
+      console.log("3");
+      delete user["password"];
+  
+    if (!user.isPrivate) {
+     
+      return res.status(200).json(user);
+    } else if(req.params.id === req.userData.userId) {
+      return res.status(200).json(user);
+    }
+     else {
+      let follower = false;
+      for (let i of loggedInUser.followings) {
+        i = JSON.parse(JSON.stringify(i));
+        console.log(user._id + " : " + i)
+        if (userId === i) {
+          follower = true;
+        }
+      }
+  
+      for (let i of loggedInUser.followers) {
+        i = JSON.parse(JSON.stringify(i));
+        console.log(user._id + " : " + i)
+        if (userId === i) {
+          follower = true;
+        }
+      }
+  
+      if(!follower) {
+        return res.status(200).json({error : 'User account is private'});
+      } else {
+      return res.status(200).json(user);
+      }
+    }
+  } catch (err) {
+    return res.status(200).json({error : err});
+  }
+ 
 });
 
 router.post("/follow/:id", requireLogin, async (req, res) => {
@@ -241,8 +277,9 @@ router.post("/follow/:id", requireLogin, async (req, res) => {
     let followed_user = await User.findById(req.params.id);
     let followings = JSON.parse(JSON.stringify(loggedInUser.followings));
     const followed_user_id = JSON.parse(JSON.stringify(followed_user._id));
+    console.log('Account is : ' + followed_user.isPrivate);
 
-    if (!followings.includes(followed_user_id)) {
+    if (!followings.includes(followed_user_id) && !followed_user.isPrivate) {
       followed_user.followers.push(
         mongoose.Types.ObjectId(req.userData.userId)
       );
@@ -253,6 +290,10 @@ router.post("/follow/:id", requireLogin, async (req, res) => {
         message: `${loggedInUser.username} started following ${
           followed_user.username
         }`
+      });
+    } else if(followed_user.isPrivate) {
+      return res.status(200).json({
+        error: `${followed_user.username} has private account!!`
       });
     } else {
       return res.status(200).json({
@@ -335,9 +376,11 @@ router.post("/block", requireLogin, async (req, res) => {
     console.log(user.Blocked);
     console.log(user);
 
-    for(let key in loggedInUser.Blocked) {
-      if(loggedInUser.Blocked[key] === req.body.user_id )
-          return res.status(200).json({message : "User already blocked"});
+    for(let key of loggedInUser.Blocked) {
+      key = JSON.parse(JSON.stringify(key));
+      if(key === req.body.user_id ){
+        return res.status(200).json({error : "User already blocked"});
+      }
     }
     //user = JSON.parse(JSON.stringify(user));
 
@@ -352,37 +395,75 @@ router.post("/block", requireLogin, async (req, res) => {
     res.status(200).json({ message: "User blocked" });
   } catch (err) {
     console.log(err);
-    res.status(200).json({ message: "Unable to block user" });
+    res.status(200).json({ error: "Unable to block user" });
   }
 });
 
 router.get("/show_blocked/:id", requireLogin, async (req, res) => {
+  //try {
+   // let user = await User.findById(req.params.id);
+    // res.status(200).json(user.Blocked);
+  //} catch (err) {
+   // console.log(err);
+   // res.status(200).json({ message: "Unable to fetch the blocked users" });
+  // }
+
   try {
-    let user = await User.findById(req.params.id);
-    res.status(200).json(user.Blocked);
+
+    let userId = req.query.id;
+    if (!userId) {
+      userId = req.userData.userId;
+    }
+
+    let user = await User.findById(userId).select("Blocked");
+    let blocked = [];
+
+    for (let i = 0; i <= user.Blocked.length - 1; i++) {
+      if (user.Blocked[i]) {
+        console.log(user.Blocked[i]);
+        result = await User.findById(user.Blocked[i]._id);
+        console.log(result);
+        blocked.push({
+          _id: result._id,
+          username: result.username,
+          profile_pic: result.profile_pic,
+          bio: result.bio
+        });
+      }
+    }
+    
+    res.status(200).json(blocked);
   } catch (err) {
     console.log(err);
-    res.status(200).json({ message: "Unable to fetch the blocked users" });
+    return res.status(200).json({
+      error: `Something went wrong`
+    });
   }
+  
 });
 router.post("/unblock", requireLogin, async (req, res) => {
   try {
+    //console.log(req.userData.userId)
     let user = await User.findById(req.userData.userId);
-    console.log("Hello" + user)
-    for (let key in user.Blocked) {
-      if (user.Blocked[key] === req.body.user_id) {
+  // console.log("Hello" + user)
+    for (let key of user.Blocked) {
+      key = JSON.parse(JSON.stringify(key))
+      console.log(typeof(key),req.body.user_id)
+      if (key === req.body.user_id) {
+        console.log("Ashu " + key)
         user.Blocked.splice(key, 1);
+      
        await user.save();
        // console.log(user.Blocked);
         return res.status(200).json({ message: "User successfully unblocked" });
+        
       }
     }
-    return res.status(200).json({ message: "Blocked User does not exist" });
 
-    
+    return res.status(200).json({error : "User not found!!!!"});
   } catch (err) {
     console.log(err);
-    res.status(200).json({ message: "Unable to unblock the user!!" });
-  }
+   return res.status(200).json({ error: "Unable to unblock the user!!" });
+  } 
 });
 module.exports = router;

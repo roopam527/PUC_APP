@@ -84,7 +84,7 @@ const userSchema = mongoose.Schema({
     required: true
   },
   Blocked: {
-    type: [String],
+    type: [Schema.Types.ObjectId],
     default: []
   }
 });
