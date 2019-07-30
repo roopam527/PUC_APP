@@ -177,7 +177,8 @@ router.get("/fetch_my_challenges/:id", requireLogin, async (req, res) => {
             username: person.username,
             profile_pic: person.profile_pic,
             user_id: data.user_id,
-            status: data.status
+            status: data.status,
+            date: data.date
           };
           return object;
           // let person = await User.findById(given_to.user_id);
@@ -428,7 +429,7 @@ router.post("/accept_decline", requireLogin, async (req, res) => {
           person.save();
 
           NewChallenge.given_to[key].status = "ACCEPTED";
-          NewChallenge.given_to[key].date = JSON.parse(JSON.stringify(Date.now().getUnixTime()));
+          NewChallenge.given_to[key].date = JSON.parse(JSON.stringify(Date.now()));
           await Challenge.findByIdAndUpdate(
             req.body.challenge_id,
             { $set: NewChallenge },

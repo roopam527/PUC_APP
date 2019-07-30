@@ -41,6 +41,7 @@ app.use(bodyParser.json());
 
 //app.get("/uploads", express.static("uploads"));
 app.use("/uploads", express.static("uploads"));
+app.use('/uploads/challenge_pics', express.static('uploads/challenge_pics'));
 
 mongoose.connect(keys.MONGO_URI, { useNewUrlParser: true });
 mongoose.connection

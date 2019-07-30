@@ -237,7 +237,10 @@ router.get("/get_user/:id", requireLogin, async (req, res) => {
     if (!user.isPrivate) {
      
       return res.status(200).json(user);
-    } else {
+    } else if(req.params.id === req.userData.userId) {
+      return res.status(200).json(user);
+    }
+     else {
       let follower = false;
       for (let i of loggedInUser.followings) {
         i = JSON.parse(JSON.stringify(i));
