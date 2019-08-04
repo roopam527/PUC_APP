@@ -128,20 +128,17 @@ router.post('/verification', (req,res)=>{
   });
 });
 
-router.post('/resend-verification',
-[
-  check("email", "Please enter a valid email address").isEmail().optional(),
-  check("phone", "Please enter a valid phone number").isMobilePhone('en-IN').optional(),
-], (req,res)=>{
-  const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
-      }
-      
+router.post('/resend-verification', (req,res)=>{
+  
+  if(!/^(?!.*\.\.)(?!.*\.$)[^\W][\w.]{0,29}$/.test(req.body.username)){
+    return res.status(400).json({ error: {name: "username", value: "invalid username"} });
+  }
+
   var userData = {
-    Username: req.body.email || req.body.phone,
+    Username: req.body.username,
     Pool : userPool
   }
+
   var cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
   cognitoUser.resendConfirmationCode(function(err, result) {
     if (err) {
