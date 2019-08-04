@@ -467,11 +467,9 @@ router.post("/unblock", requireLogin, async (req, res) => {
     }
 
     return res.status(200).json({error : "User not found!!!!"});
-    
   } catch (err) {
     console.log(err);
    return res.status(200).json({ error: "Unable to unblock the user!!" });
   } 
 });
-
 module.exports = router;
