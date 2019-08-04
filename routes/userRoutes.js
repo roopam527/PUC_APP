@@ -228,9 +228,15 @@ router.get("/get_user/:id", requireLogin, async (req, res) => {
       user.blocked_accounts = user.blocked_accounts.length;
     
       let challenge = await Challenge.find({ creator: req.params.id });
-    
+      let size = 0;
+
+      for(let i in challenge) {
+        size += i.length;
+      }
+
       console.log("2");
-      user.given = challenge.length;
+    //  user.given = challenge.length;
+    user.given = size;
       console.log("3");
       delete user["password"];
   
