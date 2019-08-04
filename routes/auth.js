@@ -6,6 +6,7 @@ const User = mongoose.model("users"); //users is a collection name
 const config = require("../config/keys");
 const requireLogin = require("../middlewares/requireLogin");
 const AmazonCognitoIdentity = require('amazon-cognito-identity-js');
+const validator = require('validator');
 global.fetch = require('node-fetch');
 
 var poolData = { UserPoolId : config.UserPoolId,
@@ -13,26 +14,29 @@ var poolData = { UserPoolId : config.UserPoolId,
 };
 var userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
 
-router.post("/login",
-[
-  check("email", "Please enter a valid email address").isEmail().optional(),
-  check("phone", "Please enter a valid phone number").isMobilePhone('en-IN').optional(),
-  check(
-    "password",
-    "Please enter valid password"
-  ).not()
-  .isEmpty(),
-], (req, res, next) => {
-  const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
-      }
+router.post("/login", (req, res, next) => {
+  
+  if(!req.body.email && !req.body.phone && !req.body.username){
+    return res.status(400).json({ error: {name: "unexpected", value: "invalid request"} });
+  }
+
+  if(req.body.username && !/^(?!.*\.\.)(?!.*\.$)[^\W][\w.]{0,29}$/.test(req.body.username)){
+    return res.status(400).json({ error: {name: "username", value: "invalid username"} });
+  } else if(req.body.email && !validator.isEmail(req.body.email)){
+    return res.status(400).json({ error: {name: "email", value: "invalid email"} });
+  } else if(req.body.phone && !validator.isMobilePhone(req.body.phone, 'en-IN')){
+    return res.status(400).json({ error: {name: "phone", value: "invalid phone number"} });
+  }
+  if(!validator.isLength(req.body.password, { min: 8 })){
+    return res.status(400).json({ error: {name: "password", value: "invalid password"} });
+  }
+
   var authenticationData = {
-    Username : req.body.email || req.body.phone, 
+    Username : req.body.username || req.body.email || req.body.phone, 
     Password : req.body.password, 
   };
   var userData = {
-    Username: req.body.email || req.body.phone,
+    Username: req.body.username || req.body.email || req.body.phone,
     Pool : userPool
   }
 var authenticationDetails = new AmazonCognitoIdentity.AuthenticationDetails(authenticationData);
@@ -56,22 +60,25 @@ var cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
 
 router.post(
   "/register",
-  [
-    check("username", "Please enter a name")
-      .not()
-      .isEmpty(),
-    check("email", "Please enter a valid email address").isEmail().optional(),
-    check("phone", "Please enter a valid phone number").isMobilePhone('en-IN').optional(),
-    check(
-      "password",
-      "The password must contain atleast 8 characters"
-    ).isLength({ min: 8 })
-  ],
   async (req, res) => {
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
+      
+      if(!/^(?!.*\.\.)(?!.*\.$)[^\W][\w.]{0,29}$/.test(req.body.username)){
+        return res.status(400).json({ error: {name: "username", value: "invalid username"} });
       }
+
+      if(!req.body.email && !req.body.phone){
+        return res.status(400).json({ error: {name: "unexpected", value: "invalid request"} });
+      }
+
+      if(req.body.email && !validator.isEmail(req.body.email)){
+        return res.status(400).json({ error: {name: "email", value: "invalid email"} });
+      } else if(req.body.phone && !validator.isMobilePhone(req.body.phone, 'en-IN')){
+        return res.status(400).json({ error: {name: "phone", value: "invalid phone number"} });
+      }
+      if(!validator.isLength(req.body.password, { min: 8 })){
+        return res.status(400).json({ error: {name: "password", value: "invalid password"} });
+      }
+
       let attributeList = [];
       attributeList.push(new AmazonCognitoIdentity.CognitoUserAttribute({
         Name: 'preferred_username',
@@ -88,7 +95,8 @@ router.post(
           Value: req.body.phone,
         }));
       }
-      userPool.signUp(req.body.email || req.body.phone, req.body.password, attributeList, null, function(err, result){
+
+      userPool.signUp(req.body.username, req.body.password, attributeList, null, function(err, result){
         if (err) {
             return res.status(501).json({ message: err.message });
         }
@@ -97,21 +105,17 @@ router.post(
   }
 );
 
-router.post('/verification',
-[
-  check("code", "Please enter verification code")
-    .not()
-    .isEmpty(),
-  check("email", "Please enter a valid email address").isEmail().optional(),
-  check("phone", "Please enter a valid phone number").isMobilePhone('en-IN').optional(),
-], (req,res)=>{
-  const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
-      }
+router.post('/verification', (req,res)=>{
+
+  if(!/^(?!.*\.\.)(?!.*\.$)[^\W][\w.]{0,29}$/.test(req.body.username)){
+    return res.status(400).json({ error: {name: "username", value: "invalid username"} });
+  }
+  if(!validator.isLength(req.body.code, { min: 6, max: 6 })){
+    return res.status(400).json({ error: {name: "code", value: "invalid code"} });
+  }
 
   var userData = {
-    Username: req.body.email || req.body.phone,
+    Username: req.body.username,
     Pool : userPool
   }
   var cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
