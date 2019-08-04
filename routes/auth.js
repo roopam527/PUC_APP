@@ -1,86 +1,152 @@
 const express = require("express");
 const router = express.Router();
-const passport = require("passport");
 const { check, validationResult } = require("express-validator");
 const mongoose = require("mongoose");
-const jwt = require("jsonwebtoken");
 const User = mongoose.model("users"); //users is a collection name
-const bcrypt = require("bcryptjs");
 const config = require("../config/keys");
-const salt = bcrypt.genSaltSync(10);
 const requireLogin = require("../middlewares/requireLogin");
+const AmazonCognitoIdentity = require('amazon-cognito-identity-js');
+global.fetch = require('node-fetch');
 
-router.post("/login", (req, res, next) => {
-  passport.authenticate("local", (err, user, info) => {
-    if (info) {
-      return res.json(info);
-    }
+var poolData = { UserPoolId : config.UserPoolId,
+    ClientId : config.ClientId
+};
+var userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
 
-    //console.log(res.info)
-    const token = jwt.sign(
-      { username: user.username, userId: user._id },
-      config.JWT_KEY,
-      { expiresIn: "240h" }
-    );
-    res.status(200).json({
-      token: token,
-      expiresIn: "240h",
-      userId: user._id
-    });
-  })(req, res, next);
+router.post("/login",
+[
+  check("email", "Please enter a valid email address").isEmail().optional(),
+  check("phone", "Please enter a valid phone number").isMobilePhone('en-IN').optional(),
+  check(
+    "password",
+    "Please enter valid password"
+  ).not()
+  .isEmpty(),
+], (req, res, next) => {
+  const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+      }
+  var authenticationData = {
+    Username : req.body.email || req.body.phone, 
+    Password : req.body.password, 
+  };
+  var userData = {
+    Username: req.body.email || req.body.phone,
+    Pool : userPool
+  }
+var authenticationDetails = new AmazonCognitoIdentity.AuthenticationDetails(authenticationData);
+
+var cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
+  cognitoUser.authenticateUser(authenticationDetails, {
+      onSuccess: function (result) {
+          var accessToken = result.getAccessToken().getJwtToken();
+          return res.status(200).json({
+            token: accessToken,
+            expiresIn: "240h",
+            userId: result.sub
+          });
+      },
+
+      onFailure: function(err) {
+          return res.status(501).json({ message: err.message });
+      },
+  });
 });
-
-// router.post('/login_google',(req,res)=>{
-
-// })
 
 router.post(
   "/register",
-  // [
-  //   check("username", "Please enter a name")
-  //     .not()
-  //     .isEmpty(),
-  //   check("email", "Please enter a valid email address").isEmail(),
-
-  //   check(
-  //     "password",
-  //     "The password must contain atleast 8 characters"
-  //   ).isLength({ min: 8 })
-  // ],
+  [
+    check("username", "Please enter a name")
+      .not()
+      .isEmpty(),
+    check("email", "Please enter a valid email address").isEmail().optional(),
+    check("phone", "Please enter a valid phone number").isMobilePhone('en-IN').optional(),
+    check(
+      "password",
+      "The password must contain atleast 8 characters"
+    ).isLength({ min: 8 })
+  ],
   async (req, res) => {
-    // const errors = validationResult(req);
-    // if (!errors.isEmpty()) {
-    //   return res.status(400).json({ errors: errors.array() });
-    // }
-
-    console.log(req.body);
-    let user = await User.findOne({
-      $or: [{ email: req.body.email }, { username: req.body.username }]
-    }).catch(() => {
-      return res.status(200).send({ error: "Something Went wrong" });
-    });
-
-    if (!user) {
-      user = await new User({
-        username: req.body.username,
-        email: req.body.email,
-        password: bcrypt.hashSync(req.body.password, salt)
-      })
-        .save()
-        .then(() => {
-          return res.status(200).json({ message: "done" });
-        })
-        .catch(err => {
-          console.log(err);
-          return res.status(501).json({ message: "Something Went wrong" });
-        });
-    } else {
-      return res
-        .status(200)
-        .json({ message: "this email or username is already registered" });
-    }
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+      }
+      let attributeList = [];
+      attributeList.push(new AmazonCognitoIdentity.CognitoUserAttribute({
+        Name: 'preferred_username',
+        Value: req.body.username,
+      }));
+      if(req.body.email){
+        attributeList.push(new AmazonCognitoIdentity.CognitoUserAttribute({
+          Name: 'email',
+          Value: req.body.email,
+        }));
+      } else if(req.body.phone){
+        attributeList.push(new AmazonCognitoIdentity.CognitoUserAttribute({
+          Name: 'phone_number',
+          Value: req.body.phone,
+        }));
+      }
+      userPool.signUp(req.body.email || req.body.phone, req.body.password, attributeList, null, function(err, result){
+        if (err) {
+            return res.status(501).json({ message: err.message });
+        }
+        return res.status(200).json({ message: "done" });
+      });
   }
 );
+
+router.post('/verification',
+[
+  check("code", "Please enter verification code")
+    .not()
+    .isEmpty(),
+  check("email", "Please enter a valid email address").isEmail().optional(),
+  check("phone", "Please enter a valid phone number").isMobilePhone('en-IN').optional(),
+], (req,res)=>{
+  const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+      }
+
+  var userData = {
+    Username: req.body.email || req.body.phone,
+    Pool : userPool
+  }
+  var cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
+  cognitoUser.confirmRegistration(req.body.code, true, function(err, result) {
+    if (err) {
+      console.log(err)
+      return res.status(501).json({ message: err.message });
+    }
+    return res.status(200).json({ message: "done" });
+  });
+});
+
+router.post('/resend-verification',
+[
+  check("email", "Please enter a valid email address").isEmail().optional(),
+  check("phone", "Please enter a valid phone number").isMobilePhone('en-IN').optional(),
+], (req,res)=>{
+  const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+      }
+      
+  var userData = {
+    Username: req.body.email || req.body.phone,
+    Pool : userPool
+  }
+  var cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
+  cognitoUser.resendConfirmationCode(function(err, result) {
+    if (err) {
+      console.log(err)
+      return res.status(501).json({ message: err.message });
+    }
+    return res.status(200).json({ message: "done" });
+  });
+});
 
 router.post("/reset_password", requireLogin, async (req, res) => {
   const user = await User.findById(req.userData.userId);
