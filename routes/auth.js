@@ -8,6 +8,7 @@ const requireLogin = require("../middlewares/requireLogin");
 const AmazonCognitoIdentity = require('amazon-cognito-identity-js');
 const validator = require('validator');
 global.fetch = require('node-fetch');
+var AWS = require('aws-sdk');
 
 var poolData = { UserPoolId : config.UserPoolId,
     ClientId : config.ClientId
@@ -174,63 +175,42 @@ router.get("/error", (req, res) => {
   res.status(422).json(req.info);
 });
 
-router.post("/reg_gmail_fb", async (req, res, next) => {
-  try {
-    const login = {
-      via: req.body.via,
-      id: req.body.id
-    };
-    console.log("hello from backend");
-    console.log(login);
-    let person = await User.findOne({ login: login });
-    console.log(person);
-    if (!person) {
-      console.log("1");
-      let user = new User({
-        username: req.body.id,
-        email: req.body.id,
-
-        login: {
-          via: req.body.via,
-          id: req.body.id
-        },
-        profile_pic: req.body.profile_pic
-      });
-      console.log("1.7");
-
-      await user.save();
-      console.log("1.9");
-      res.status(200).json({ message: "User successfully created!!!" });
-    } else {
-      if (person.username === req.body.id) {
-        return res.status(200).json({ message: "Username not set!!!" });
+router.post("/gflogin", 
+  async (req, res, next) => {
+      if(!req.body.fb_token && !req.body.google_token){
+        return res.status(400).json({ error: {name: "unexpected", value: "invalid request"} });
       }
-      console.log("2");
-      console.log(person._id);
-      // const payload = {
-      //   user: {
-      //     userId: person._id,
-      //     username: person.username
-      //   }
-      // };
-      // console.log(payload);
-      // const token = jwt.sign(payload, config.JWT_KEY, { expiresIn: "240h" });
-      const token = jwt.sign(
-        { username: person.username, userId: person._id },
-        config.JWT_KEY,
-        { expiresIn: "240h" }
-      );
-      res.status(200).json({
-        message: "",
-        token: token,
-        expiresIn: "240h",
-        userId: person._id
+
+      if(req.body.fb_token && !validator.isLength(req.body.fb_token, { min: "1" })){
+        return res.status(400).json({ error: {name: "fb_token", value: "invalid fb_token"} });
+      } else if(req.body.google_token && !validator.isLength(req.body.google_token, { min: "1" })){
+        return res.status(400).json({ error: {name: "google_token", value: "invalid google_token"} });
+      }
+      AWS.config.region = 'us-east-1';
+      AWS.config.credentials = new AWS.CognitoIdentityCredentials({
+        AccountId: '175890316118',
+        IdentityPoolId: 'us-east-1:ace4e9b0-93c7-451e-a7fb-2d162425ab06',
+        Logins: { // optional tokens, used for authenticated login
+            'graph.facebook.com': req.body.fb_token,
+            'accounts.google.com': req.body.google_token
+        }
       });
-    }
-  } catch (err) {
-    console.log(err);
-    res.status(501).json({ message: "Unable to register or verify user!!!" });
-  }
+      AWS.config.credentials.get(function(){
+        
+        // Credentials will be available when this function is called.
+        var accessKeyId = AWS.config.credentials.accessKeyId;
+        console.log(req.body.fb_token)
+        console.log(AWS.config.credentials.accessKeyId)
+        var secretAccessKey = AWS.config.credentials.secretAccessKey;
+        var sessionToken = AWS.config.credentials.sessionToken;
+    
+      });
+      res.status(200).json({
+        message: "done",
+        // token: token,
+        // expiresIn: "240h",
+        // userId: person._id
+      });
 });
 
 router.post("/gflogin", async (req, res) => {

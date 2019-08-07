@@ -12,6 +12,7 @@
   "license": "ISC",
   "dependencies": {
     "amazon-cognito-identity-js": "^3.0.15",
+    "aws-sdk": "^2.504.0",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.19.0",
     "connect-mongo": "^3.0.0",

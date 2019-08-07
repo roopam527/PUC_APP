@@ -9,6 +9,12 @@ ObjectId = require("mongodb").ObjectID;
 const Challenge = mongoose.model("challenges");
 const doneChallenge = mongoose.model("doneChallenges"); //completed challenge
 const User = mongoose.model("users"); //users is a collection name
+var AWS = require("aws-sdk");
+
+AWS.config.update({
+  region: "us-west-2",
+  endpoint: "http://localhost:8000"
+});
 
 const multer = require("multer");
 const requireLogin = require("../middlewares/requireLogin");
