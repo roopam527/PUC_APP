@@ -189,7 +189,7 @@ router.post("/fb-google",
       AWS.config.region = 'us-east-1';
       AWS.config.credentials = new AWS.CognitoIdentityCredentials({
         AccountId: '175890316118',
-        IdentityPoolId: 'us-east-1:ace4e9b0-93c7-451e-a7fb-2d162425ab06',
+        IdentityPoolId: 'us-east-1:06ae9115-3c5d-4e2c-bfe3-f9ab15218f50',
         Logins: { // optional tokens, used for authenticated login
             'graph.facebook.com': req.body.fb_token,
             'accounts.google.com': req.body.google_token
