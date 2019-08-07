@@ -48,7 +48,7 @@ var cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
           return res.status(200).json({
             token: accessToken,
             expiresIn: "240h",
-            userId: result.sub
+            userId: result.getAccessToken().payload.sub
           });
       },
 
