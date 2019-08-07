@@ -175,7 +175,7 @@ router.get("/error", (req, res) => {
   res.status(422).json(req.info);
 });
 
-router.post("/gflogin", 
+router.post("/fb-google", 
   async (req, res, next) => {
       if(!req.body.fb_token && !req.body.google_token){
         return res.status(400).json({ error: {name: "unexpected", value: "invalid request"} });
