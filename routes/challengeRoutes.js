@@ -359,6 +359,7 @@ router.get("/fetch_doneChallenges/:id", requireLogin, async (req, res) => {
             description: "",
             caption: "",
             post_id: "",
+            comments_count: 0,
           };
           console.log("3");
           const chal = await Challenge.findById(challenge);
@@ -390,6 +391,7 @@ router.get("/fetch_doneChallenges/:id", requireLogin, async (req, res) => {
           console.log(DoneChallenge);
           console.log("5.1");
           ChalDetail.post_id = DoneChallenge.id;
+          ChalDetail.comments_count = DoneChallenge.comments.length;
           ChalDetail.challenge_pic = DoneChallenge.image;
           //console.log(DoneChallenge);
           ChalDetail.caption = DoneChallenge.description;
