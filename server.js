@@ -61,9 +61,11 @@ const PORT = process.env.PORT || 8000;
 const authRoutes = require("./routes/auth");
 const userRoutes = require("./routes/userRoutes");
 const challengeRoute = require("./routes/challengeRoutes");
+const postRoute = require("./routes/post");
 app.use("/auth", authRoutes);
 app.use("/user", userRoutes);
 app.use("/challenge", challengeRoute);
+app.use("/post", postRoute);
 app.get("/", (req, res) => {
   res.send("Chat Server is running on port 8000");
 });

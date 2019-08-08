@@ -26,6 +26,13 @@ const doneChallengeSchema = mongoose.Schema({
       type: Date,
       default: Date.now
     }
+  },
+  comments: {
+    type: [{
+      user_id: { type: Schema.Types.ObjectId },
+      comment: { type: String },
+      createdAt: { type: String, default: Date.now() }
+    }]
   }
 });
 doneChallengeSchema.plugin(uniqueValidator);

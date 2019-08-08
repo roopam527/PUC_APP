@@ -357,7 +357,8 @@ router.get("/fetch_doneChallenges/:id", requireLogin, async (req, res) => {
             challenge_pic: "",
             title: "",
             description: "",
-            caption: ""
+            caption: "",
+            post_id: "",
           };
           console.log("3");
           const chal = await Challenge.findById(challenge);
@@ -368,7 +369,7 @@ router.get("/fetch_doneChallenges/:id", requireLogin, async (req, res) => {
           ChalDetail.title = chal.title;
           //console.log(ChalDetail);
           const user = await User.findById(chal.creator);
-
+          
           const given_to = await User.findById(req.params.id);
 
           ChalDetail.creator_pic = user.profile_pic;
@@ -388,6 +389,7 @@ router.get("/fetch_doneChallenges/:id", requireLogin, async (req, res) => {
           //   DoneChallenge = JSON.parse(JSON.stringify(DoneChallenge));
           console.log(DoneChallenge);
           console.log("5.1");
+          ChalDetail.post_id = DoneChallenge.id;
           ChalDetail.challenge_pic = DoneChallenge.image;
           //console.log(DoneChallenge);
           ChalDetail.caption = DoneChallenge.description;
