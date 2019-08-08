@@ -75,22 +75,85 @@ router.post("/like", requireLogin, async (req, res, next) => {
         });
     }
   
+    try{
     let doneChallenge = await doneChallenges.findById(req.body.id);
-    doneChallenge.update({ 
+
+    for(let i=0; i< doneChallenge.likes.length; i++) {
+        if(doneChallenge.likes[i].user_id == req.userData.userId){
+            const a = await doneChallenges.updateOne({ _id: req.body.id, 'likes.user_id': req.userData.userId}, { '$set': { 
+                'likes.$.emoji': req.body.emoji 
+            }}, { new: true });
+            let doc = await doneChallenges.findById(req.body.id).select({likes: 1});
+            return res.status(200).json({
+                likes_count: doc.likes.length
+            });
+        }
+    }
+        
+    await doneChallenge.update({ 
         $push: { likes: { user_id: req.userData.userId, emoji: req.body.emoji } } , 
-      }, { upsert: true }).then(() => {
-          res.status(200).json({
-          message: "Like added successfully"
-          });
     })
-    .catch(error => {
-      console.log(error);
-      res.status(500).json({
-        message: "Like creation failed"
-      });
+
+    let doc = await doneChallenges.findById(req.body.id).select({likes: 1});
+    return res.status(200).json({
+        likes_count: doc.likes.length
     });
-  
-  });
+
+    } catch(err){
+        res.status(200).json({
+            message: "Like creation failed"
+        });
+    }
+});
+
+router.get("/likes", requireLogin, async (req, res, next) => {
+    if(!req.query.id){
+      return res.status(200).json({
+          message: "Invalid post id"
+      });
+    }
+
+    if(emojis.indexOf(req.query.emoji) == -1 && req.query.emoji != "all"){
+        return res.status(200).json({
+            message: "Invalid emoji"
+        });
+    }
+    
+    try{
+        const doneChallenge = await doneChallenges.findById(req.query.id);
+        let likes = [];
+        if(req.query.emoji === "all"){
+            likes = await Promise.all(doneChallenge.likes.map(async (l) => {
+                let like = {}
+                const user = await User.findById(l.user_id);
+                like.profile_pic = user.profile_pic;
+                like.username = user.username;
+                like.emoji = l.emoji;
+                return like;
+            }));
+        } else {
+            for(const l of doneChallenge.likes){
+                let like = {}
+                if(req.query.emoji == l.emoji){
+                    const user = await User.findById(l.user_id);
+                    like.profile_pic = user.profile_pic;
+                    like.username = user.username;
+                    like.emoji = l.emoji;
+                    likes.push(like);   
+                }
+            };
+        }
+        res.status(200).json({
+            likes: await likes
+        });
+    } catch(err) {
+        console.log(err)
+        return res.status(200).json({
+            message: "Unable to fetch the likes"
+        });
+    }
+
+});
 
 
 module.exports = router;
