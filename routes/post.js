@@ -21,7 +21,7 @@ router.post("/comment", requireLogin, async (req, res, next) => {
   try{
     const doneChallenge = await doneChallenges.findById(req.body.id);
     await doneChallenge.update({ 
-        $push: { comments: { user_id: req.userData.userId, comment: req.body.comment } } , 
+        $push: { comments: { user_id: req.userData.userId, comment: req.body.comment, createdAt: Date.now() } } , 
       })
     res.status(200).json({
     message: "comment added successfully"
@@ -81,7 +81,8 @@ router.post("/like", requireLogin, async (req, res, next) => {
     for(let i=0; i< doneChallenge.likes.length; i++) {
         if(doneChallenge.likes[i].user_id == req.userData.userId){
             const a = await doneChallenges.updateOne({ _id: req.body.id, 'likes.user_id': req.userData.userId}, { '$set': { 
-                'likes.$.emoji': req.body.emoji 
+                'likes.$.emoji': req.body.emoji,
+                'likes.$.createdAt': Date.now() 
             }}, { new: true });
             let doc = await doneChallenges.findById(req.body.id).select({likes: 1});
             return res.status(200).json({
@@ -91,7 +92,7 @@ router.post("/like", requireLogin, async (req, res, next) => {
     }
         
     await doneChallenge.update({ 
-        $push: { likes: { user_id: req.userData.userId, emoji: req.body.emoji } } , 
+        $push: { likes: { user_id: req.userData.userId, emoji: req.body.emoji, createdAt: Date.now() } } , 
     })
 
     let doc = await doneChallenges.findById(req.body.id).select({likes: 1});
