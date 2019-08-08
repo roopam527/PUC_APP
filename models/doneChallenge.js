@@ -33,6 +33,13 @@ const doneChallengeSchema = mongoose.Schema({
       comment: { type: String },
       createdAt: { type: String, default: Date.now() }
     }]
+  },
+  likes: {
+    type: [{
+      user_id: { type: Schema.Types.ObjectId },
+      emoji: { type: String },
+      createdAt: { type: String, default: Date.now() }
+    }]
   }
 });
 doneChallengeSchema.plugin(uniqueValidator);
