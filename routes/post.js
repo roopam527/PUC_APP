@@ -129,7 +129,7 @@ router.get("/likes", requireLogin, async (req, res, next) => {
                 const user = await User.findById(l.user_id);
                 like.profile_pic = user.profile_pic;
                 like.username = user.username;
-                like.emoji = l.emoji;
+                like.bio = user.bio;
                 return like;
             }));
         } else {
@@ -139,7 +139,7 @@ router.get("/likes", requireLogin, async (req, res, next) => {
                     const user = await User.findById(l.user_id);
                     like.profile_pic = user.profile_pic;
                     like.username = user.username;
-                    like.emoji = l.emoji;
+                    like.bio = user.bio;
                     likes.push(like);   
                 }
             };
