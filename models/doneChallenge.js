@@ -11,6 +11,11 @@ const doneChallengeSchema = mongoose.Schema({
   },
   image: { type: String, required: true },
 
+  type: {
+    type: String,
+    required : true
+  },
+
   given_to: {
     required: true,
     type: String,

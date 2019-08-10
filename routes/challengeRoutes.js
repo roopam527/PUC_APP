@@ -23,10 +23,10 @@ const storage = multer.diskStorage({
 
 const fileFilter = (req, file, cb) => {
   var ext = path.extname(file.originalname);
-  if (ext === ".jpeg" || ext === ".png") {
+  if (ext === ".jpeg" || ext === ".png" || ext === ".mp4" || ext === ".mkv" || ext === ".mp3") {
     cb(null, true);
   } else {
-    return cb(null, new Error("Only images are allowed"));
+    return cb(null, new Error("Only images, video and audio are allowed"));
   }
 };
 
@@ -296,7 +296,8 @@ router.post(
         creator: req.body.creator,
         given_to: req.body.given_to,
         image: "/" + req.file.path,
-        challenge_id: req.body.challenge_id
+        challenge_id: req.body.challenge_id,
+        type: req.body.type,
       });
       // if (req.file.path) {
       //   Object.assign(challenge, { image: "/" + req.file.path });
@@ -360,6 +361,7 @@ router.get("/fetch_doneChallenges/:id", requireLogin, async (req, res) => {
             caption: "",
             post_id: "",
             comments_count: 0,
+            like: "",
           };
           console.log("3");
           const chal = await Challenge.findById(challenge);
@@ -393,6 +395,8 @@ router.get("/fetch_doneChallenges/:id", requireLogin, async (req, res) => {
           ChalDetail.post_id = DoneChallenge.id;
           ChalDetail.comments_count = DoneChallenge.comments.length;
           ChalDetail.challenge_pic = DoneChallenge.image;
+          ChalDetail.like = DoneChallenge.like.emoji;
+          console.log("MyChallenge" + ChalDetail.like);
           //console.log(DoneChallenge);
           ChalDetail.caption = DoneChallenge.description;
           console.log(DoneChallenge.image);
@@ -411,7 +415,7 @@ router.get("/fetch_doneChallenges/:id", requireLogin, async (req, res) => {
   } catch (err) {
     console.log(err);
     return res.json({
-      message: "Unable to fetch the completed challenges"
+      message: err
     });
   }
 });
