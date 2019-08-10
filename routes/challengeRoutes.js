@@ -23,7 +23,7 @@ const storage = multer.diskStorage({
 
 const fileFilter = (req, file, cb) => {
   var ext = path.extname(file.originalname);
-  if (ext === ".jpeg" || ext === ".png" || ext === ".mp4" || ext === ".mkv" || ext === ".mp3") {
+  if (ext === ".jpeg" || ext === ".png" || ext === ".mp4" || ext === ".mkv" || ext === ".mp3" || ext === ".wav") {
     cb(null, true);
   } else {
     return cb(null, new Error("Only images, video and audio are allowed"));
@@ -395,7 +395,8 @@ router.get("/fetch_doneChallenges/:id", requireLogin, async (req, res) => {
           ChalDetail.post_id = DoneChallenge.id;
           ChalDetail.comments_count = DoneChallenge.comments.length;
           ChalDetail.challenge_pic = DoneChallenge.image;
-          ChalDetail.like = DoneChallenge.like.emoji;
+//          if (DoneChallenge.like.emoji !== undefined)
+//          ChalDetail.like = DoneChallenge.like.emoji;
           console.log("MyChallenge" + ChalDetail.like);
           //console.log(DoneChallenge);
           ChalDetail.caption = DoneChallenge.description;
