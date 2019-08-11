@@ -220,28 +220,24 @@ router.get("/get_user/:id", requireLogin, async (req, res) => {
     let loggedInUser = await User.findById(req.userData.userId);
     let user = await User.findById(req.params.id);
     let userId = JSON.parse(JSON.stringify(req.params.id));
-     console.log("1");
-      console.log(user);
       user = JSON.parse(JSON.stringify(user));
       user.followers = user.followers.length;
       user.followings = user.followings.length;
       user.blocked_accounts = user.blocked_accounts.length;
-    
+
       let challenge = await Challenge.find({ creator: req.params.id });
       let size = 0;
 
-      for(let i in challenge) {
-        size += i.length;
-      }
+      challenge.forEach((c) => {
+          size += c.given_to.length;
+      })
 
-      console.log("2");
     //  user.given = challenge.length;
     user.given = size;
-      console.log("3");
       delete user["password"];
-  
+
     if (!user.isPrivate) {
-     
+
       return res.status(200).json(user);
     } else if(req.params.id === req.userData.userId) {
       return res.status(200).json(user);
@@ -255,7 +251,7 @@ router.get("/get_user/:id", requireLogin, async (req, res) => {
           follower = true;
         }
       }
-  
+
       for (let i of loggedInUser.followers) {
         i = JSON.parse(JSON.stringify(i));
         console.log(user._id + " : " + i)
@@ -263,7 +259,7 @@ router.get("/get_user/:id", requireLogin, async (req, res) => {
           follower = true;
         }
       }
-  
+
       if(!follower) {
         return res.status(200).json({error : 'User account is private'});
       } else {
@@ -273,7 +269,7 @@ router.get("/get_user/:id", requireLogin, async (req, res) => {
   } catch (err) {
     return res.status(200).json({error : err});
   }
- 
+
 });
 
 router.post("/follow/:id", requireLogin, async (req, res) => {
@@ -437,7 +433,7 @@ router.get("/show_blocked/:id", requireLogin, async (req, res) => {
         });
       }
     }
-    
+
     res.status(200).json(blocked);
   } catch (err) {
     console.log(err);
@@ -445,7 +441,7 @@ router.get("/show_blocked/:id", requireLogin, async (req, res) => {
       error: `Something went wrong`
     });
   }
-  
+
 });
 router.post("/unblock", requireLogin, async (req, res) => {
   try {
@@ -458,11 +454,11 @@ router.post("/unblock", requireLogin, async (req, res) => {
       if (key === req.body.user_id) {
         console.log("Ashu " + key)
         user.Blocked.splice(key, 1);
-      
+
        await user.save();
        // console.log(user.Blocked);
         return res.status(200).json({ message: "User successfully unblocked" });
-        
+
       }
     }
 
@@ -470,6 +466,6 @@ router.post("/unblock", requireLogin, async (req, res) => {
   } catch (err) {
     console.log(err);
    return res.status(200).json({ error: "Unable to unblock the user!!" });
-  } 
+  }
 });
 module.exports = router;
