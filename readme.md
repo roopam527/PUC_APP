@@ -38,6 +38,18 @@
 
 ### `POST` user/unblock
 
+### `POST` post/comment
+
+### `GET` post/comments
+
+### `POST` post/like
+
+### `GET` post/likes
+
+### `POST` story/create
+
+### `GET` story/received-stories
+
 ### `POST` auth/gflogin
 
 ### `POST` auth/reg_gmail_fb
