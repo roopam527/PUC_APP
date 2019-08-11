@@ -69,6 +69,75 @@ router.post("/create", requireLogin, upload.single("story_pic"), async (req, res
   }
 });
 
+router.get("/posted-stories", requireLogin, async (req, res, next) => {
+    try{
+        const receiver = await User.findById(req.userData.userId);
+        const users  = [receiver.id, ...receiver.followings];
+        const data =  await users.reduce(async (received_stories, user) => {
+          const user_data = await User.findById(user);
+          if(user_data.Received_Stories)
+          {
+            let stories_tmp = await user_data.Received_Stories.reduce(async (received_user_stories, story) => {
+              let data = {};
+              const received_story = await stories.findById(story);
+              if(received_story.isPosted){
+                 data.receiver_profile_pic = user_data.profile_pic;
+                 data.receiver_username = user_data.username;
+                 data.receiver_id = user_data.id;
+                 data.image = received_story.image;
+                 received_user_stories.push(data)
+              }
+              return received_user_stories;
+            }, []);
+            received_stories = await received_stories;
+            received_stories = [...received_stories, ...stories_tmp];
+          }
+          return received_stories;
+        }, []);
+        res.status(200).json(data);
+    } catch(err) {
+      console.log(err)
+        return res.status(200).json({
+            message: "Unable to fetch stories"
+        });
+    }
+});
+
+router.post("/post/:id", requireLogin, async (req, res, next) => {
+  if(!isLength(req.params.id, { min: 1 })){
+    return res.status(200).json({
+        message: "Invalid story id"
+    });
+  }
+  try{
+    const receiver = await User.findById(req.userData.userId);
+    const story = await stories.findById(req.params.id);
+
+    if(story.receiver != req.userData.userId){
+      return res.status(200).json({
+          message: "Invalid story id"
+      });
+    }
+    if(!story.isPosted){
+      story.isPosted = true;
+      await story.save();
+    } else {
+      return res.status(200).json({
+          message: "Story already posted"
+      });
+    }
+
+    return res.status(200).json({
+    message: "story posted successfully"
+    });
+  } catch(err){
+    console.log(err)
+    return res.status(200).json({
+        message: "story post failed"
+    });
+  }
+});
+
 router.get("/received-stories", requireLogin, async (req, res, next) => {
     try{
         const receiver = await User.findById(req.userData.userId);
@@ -76,6 +145,7 @@ router.get("/received-stories", requireLogin, async (req, res, next) => {
           receiver_profile_pic: receiver.profile_pic,
           receiver_username: receiver.username
         }
+        const posted_ids = receiver.followings;
         const received_stories = await Promise.all(receiver.Received_Stories.map(async (story) => {
             let data = {};
             const received_story = await stories.findById(story);
@@ -95,7 +165,5 @@ router.get("/received-stories", requireLogin, async (req, res, next) => {
         });
     }
 });
-
-
 
 module.exports = router;
