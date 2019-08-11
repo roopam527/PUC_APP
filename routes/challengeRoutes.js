@@ -362,6 +362,7 @@ router.get("/fetch_doneChallenges/:id", requireLogin, async (req, res) => {
             post_id: "",
             comments_count: 0,
             like: "",
+            type: "",
           };
           console.log("3");
           const chal = await Challenge.findById(challenge);
@@ -395,6 +396,7 @@ router.get("/fetch_doneChallenges/:id", requireLogin, async (req, res) => {
           ChalDetail.post_id = DoneChallenge.id;
           ChalDetail.comments_count = DoneChallenge.comments.length;
           ChalDetail.challenge_pic = DoneChallenge.image;
+          ChalDetail.type = DoneChallenge.type;
 //          if (DoneChallenge.like.emoji !== undefined)
 //          ChalDetail.like = DoneChallenge.like.emoji;
           console.log("MyChallenge" + ChalDetail.like);
