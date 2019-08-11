@@ -37,6 +37,11 @@ router.post("/create", requireLogin, upload.single("story_pic"), async (req, res
         message: "Invalid receiver"
     });
   }
+  if(req.userData.userId === req.body.receiver){
+    return res.status(200).json({
+        message: "Sender and Receiver should be different"
+    });
+  }
   try{
     const sender = await User.findById(req.userData.userId);
     const receiver = await User.findById(req.body.receiver);
@@ -71,23 +76,27 @@ router.get("/received-stories", requireLogin, async (req, res, next) => {
         });
     }
     try{
-        const userStories = await stories.find(req.query.sto);
-        const comments = await Promise.all(doneChallenge.comments.map(async (c) => {
-            let comment = {
-                comment: c.comment,
-                createdAt: c.createdAt
-            }
-            const user = await User.findById(c.user_id);
-            comment.profile_pic = user.profile_pic;
-            comment.username = user.username;
-            return comment;
+        const receiver = await User.findById(req.query.user_id);
+        let data = {
+          receiver_profile_pic: receiver.profile_pic,
+          receiver_username: receiver.username
+        }
+        const received_stories = await Promise.all(receiver.Received_Stories.map(async (story) => {
+            let data = {};
+            const received_story = await stories.findById(story);
+            const sender = await User.findById(received_story.sender);
+            data.sender_profile_pic = sender.profile_pic;
+            data.sender_username = sender.username;
+            data.sender_id = sender.id;
+            data.image = received_story.image;
+            return data;
         }));
-        res.status(200).json({
-            comments: await comments
-        });
+        data.stories = received_stories
+        res.status(200).json(data);
     } catch(err) {
+      console.log(err)
         return res.status(200).json({
-            message: "Unable to fetch the comments"
+            message: "Unable to fetch stories"
         });
     }
 });

@@ -329,7 +329,6 @@ router.post(
 
 router.get("/fetch_doneChallenges/:id", requireLogin, async (req, res) => {
   try {
-    console.log("1");
     console.log(req.userData.username);
     //const id = ObjectId("5d25c83d376dfa0017d9314");
     //var id = mongoose.Types.ObjectId("5d25c83d376dfa0017d9314");
@@ -349,7 +348,7 @@ router.get("/fetch_doneChallenges/:id", requireLogin, async (req, res) => {
       //console.log(user);
       //let details = [];
       let details = await Promise.all(
-        user.Done_Challenges.map(async challenge => {
+        user.Done_Challenges.map(async (challenge, i) => {
           let ChalDetail = {
             creator_pic: "",
             creator_id: "",
@@ -364,7 +363,6 @@ router.get("/fetch_doneChallenges/:id", requireLogin, async (req, res) => {
             like: "",
             type: "",
           };
-          console.log("3");
           const chal = await Challenge.findById(challenge);
           // console.log(chal.creator);
           ChalDetail.creator_id = chal.creator;
@@ -373,37 +371,29 @@ router.get("/fetch_doneChallenges/:id", requireLogin, async (req, res) => {
           ChalDetail.title = chal.title;
           //console.log(ChalDetail);
           const user = await User.findById(chal.creator);
-          
+
           const given_to = await User.findById(req.params.id);
 
           ChalDetail.creator_pic = user.profile_pic;
 
           ChalDetail.creator_name = user.username;
 
-          console.log(ChalDetail);
-          console.log("4");
 
           ChalDetail.given_to_pic = given_to.profile_pic;
           ChalDetail.given_to_name = given_to.username;
-          console.log(ChalDetail);
-          console.log("5");
           let DoneChallenge = await doneChallenge.findOne({
             challenge_id: challenge
           });
           //   DoneChallenge = JSON.parse(JSON.stringify(DoneChallenge));
-          console.log(DoneChallenge);
-          console.log("5.1");
+          console.log(i, DoneChallenge.id)
           ChalDetail.post_id = DoneChallenge.id;
           ChalDetail.comments_count = DoneChallenge.comments.length;
           ChalDetail.challenge_pic = DoneChallenge.image;
           ChalDetail.type = DoneChallenge.type;
 //          if (DoneChallenge.like.emoji !== undefined)
 //          ChalDetail.like = DoneChallenge.like.emoji;
-          console.log("MyChallenge" + ChalDetail.like);
           //console.log(DoneChallenge);
           ChalDetail.caption = DoneChallenge.description;
-          console.log(DoneChallenge.image);
-          console.log(ChalDetail.challenge_pic);
           //console.log(ChalDetail);
           // console.log("6");
           //details.push(ChalDetail);
@@ -411,12 +401,11 @@ router.get("/fetch_doneChallenges/:id", requireLogin, async (req, res) => {
           return ChalDetail;
         })
       );
-      console.log("7");
-      console.log(details);
+      console.log('aaaaaaaaaaaaaa', details)
       res.json(details);
     }
   } catch (err) {
-    console.log(err);
+    console.error('aaaaaaaaaaaaaa', err);
     return res.json({
       message: err
     });
@@ -458,7 +447,7 @@ router.post("/accept_decline", requireLogin, async (req, res) => {
         console.log(challenge);
         console.log(challenge.given_to[key]);
         /*challenge.given_to.ForEach(given_to => {
-        
+
         }
       });*/
       }
@@ -479,7 +468,7 @@ router.post("/accept_decline", requireLogin, async (req, res) => {
         console.log(challenge);
         console.log(challenge.given_to[key]);
         /*challenge.given_to.ForEach(given_to => {
-        
+
         }
       });*/
       }
@@ -547,7 +536,6 @@ router.get("/accepted_pending/:id", requireLogin, async (req, res) => {
         })
       );
       users.given_to = all_users;
-      console.log(users.given_to);
       // console.log("2");
       //console.log(data);
       //return data;
