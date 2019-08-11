@@ -50,6 +50,10 @@
 
 ### `GET` story/received-stories
 
+### `GET` story/posted-stories
+
+### `POST` story/post/:id
+
 ### `POST` auth/gflogin
 
 ### `POST` auth/reg_gmail_fb
