@@ -70,13 +70,8 @@ router.post("/create", requireLogin, upload.single("story_pic"), async (req, res
 });
 
 router.get("/received-stories", requireLogin, async (req, res, next) => {
-    if(!req.query.user_id){
-        return res.status(200).json({
-            message: "Invalid user id"
-        });
-    }
     try{
-        const receiver = await User.findById(req.query.user_id);
+        const receiver = await User.findById(req.userData.userId);
         let data = {
           receiver_profile_pic: receiver.profile_pic,
           receiver_username: receiver.username
@@ -100,5 +95,7 @@ router.get("/received-stories", requireLogin, async (req, res, next) => {
         });
     }
 });
+
+
 
 module.exports = router;
