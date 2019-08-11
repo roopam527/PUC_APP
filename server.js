@@ -28,6 +28,7 @@ require("./models/allchats");
 require("./models/messages");
 require("./models/doneChallenge");
 require("./models/challenges");
+require("./models/stories");
 require("./services/passport");
 
 var io = (module.exports.io = require("socket.io")(server));
@@ -62,10 +63,12 @@ const authRoutes = require("./routes/auth");
 const userRoutes = require("./routes/userRoutes");
 const challengeRoute = require("./routes/challengeRoutes");
 const postRoute = require("./routes/post");
+const storyRoute = require("./routes/story");
 app.use("/auth", authRoutes);
 app.use("/user", userRoutes);
 app.use("/challenge", challengeRoute);
 app.use("/post", postRoute);
+app.use("/story", storyRoute);
 app.get("/", (req, res) => {
   res.send("Chat Server is running on port 8000");
 });

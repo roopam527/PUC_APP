@@ -83,6 +83,16 @@ const userSchema = mongoose.Schema({
     default: [],
     required: true
   },
+  Send_Stories: {
+    type: [Schema.Types.ObjectId],
+    ref: "stories",
+    default: []
+  },
+  Received_Stories: {
+    type: [Schema.Types.ObjectId],
+    ref: "stories",
+    default: []
+  },
   Blocked: {
     type: [Schema.Types.ObjectId],
     default: []
