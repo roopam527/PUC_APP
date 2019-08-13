@@ -9,6 +9,10 @@ const bcrypt = require("bcryptjs");
 const config = require("../config/keys");
 const salt = bcrypt.genSaltSync(10);
 const requireLogin = require("../middlewares/requireLogin");
+const twilio = require('twilio');
+const twilioClient = twilio('AC8985a005f9d8ebf9f0467bc13617106a', '26dc24316fc19277f53160e45e4b0a0a')
+const sgMail = require('@sendgrid/mail');
+sgMail.setApiKey('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');
 
 router.post("/login", (req, res, next) => {
   passport.authenticate("local", (err, user, info) => {
@@ -199,4 +203,93 @@ router.post("/gflogin", async (req, res) => {
     res.status(501).json({ message: "Unable to register or verify user!!!" });
   }
 });
+
+router.post('/send-verification', async (req, res, next) => {
+  var verificationCode = Math.floor(Math.random() * (100000 - 999999) + 999999);
+  verificationCode = verificationCode.toString();
+  const { phone, email } = req.body;
+  if(email && phone) {
+    return res.status(200).json({ message: "Invalid Request" });
+  }
+  try{
+    if(phone){
+      let user = await User.findOne({phone});
+      if(user && user.phone_verified){
+        return res.status(200).json({ message: "Already verified" });
+      }
+      var params = {
+        to: phone,
+        from: '+19283795019', // Your twilio phone number
+        body: `Your PucApp verification code is ${verificationCode}`,
+      };
+      const msg = await twilioClient.messages.create(params);
+      user.verification_code = verificationCode;
+      await user.save();
+      return res.status(200).json({ message: "Verification Code Send" });
+    }
+    if(email){
+      let user = await User.findOne({email});
+      if(user && user.email_verified){
+        return res.status(200).json({ message: "Already verified" });
+      }
+      const msg = {
+        to: email,
+        from: 'pucapp2018@gmail.com',
+        subject: 'PucApp Verification Code',
+        text: `Your PucApp verification code is ${verificationCode}`,
+        html: `Your PucApp verification code is <strong>${verificationCode}</strong>`,
+      };
+      await sgMail.send(msg);
+      user.verification_code = verificationCode;
+      await user.save();
+      return res.status(200).json({ message: "Verification Code Send" });
+    }
+  } catch(err){
+    res.status(200).json({ message: "Unable to send verification code" });
+  }
+})
+
+router.post('/verify', async (req, res, next) => {
+  const { phone, email, code } = req.body;
+  if(email && phone) {
+    return res.status(200).json({ message: "Invalid Request" });
+  }
+  try{
+    if(phone){
+      let user = await User.findOne({phone});
+      if(user){
+        if(user.phone_verified){
+          return res.status(200).json({ message: "Already verified" });
+        }
+        if(code !== user.verification_code){
+          return res.status(200).json({ message: "Invalid Code" });
+        }
+        user.phone_verified = true;
+        await user.save();
+        return res.status(200).json({ message: "Verification Done" });
+      } else {
+        res.status(200).json({ message: "Unable to verify" });
+      }
+    }
+    if(email){
+      let user = await User.findOne({email});
+      if(user){
+        if(user.email_verified){
+          return res.status(200).json({ message: "Already verified" });
+        }
+        if(code !== user.verification_code){
+          return res.status(200).json({ message: "Invalid Code" });
+        }
+        user.email_verified = true;
+        await user.save();
+        return res.status(200).json({ message: "Verification Done" });
+      } else {
+        res.status(200).json({ message: "Unable to verify" });
+      }
+    }
+  } catch(err){
+    console.log(err)
+    res.status(200).json({ message: "Unable to verify" });
+  }
+})
 module.exports = router;

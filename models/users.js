@@ -96,7 +96,21 @@ const userSchema = mongoose.Schema({
   Blocked: {
     type: [Schema.Types.ObjectId],
     default: []
-  }
+  },
+  phone: {
+    type: String
+  },
+  verification_code: {
+    type: String
+  },
+  phone_verified: {
+    type: Boolean,
+    default: false
+  },
+  email_verified: {
+    type: Boolean,
+    default: false
+  },
 });
 userSchema.plugin(uniqueValidator);
 
