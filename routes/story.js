@@ -9,6 +9,7 @@ const { isLength } = require('validator');
 const path = require("path");
 const multer = require("multer");
 const uuidv4 = require("uuid/v4");
+const _ = require('lodash');
 
 const storage = multer.diskStorage({
   destination: function(req, file, cb) {
@@ -141,23 +142,33 @@ router.post("/post/:id", requireLogin, async (req, res, next) => {
 router.get("/received-stories", requireLogin, async (req, res, next) => {
     try{
         const receiver = await User.findById(req.userData.userId);
-        let data = {
-          receiver_profile_pic: receiver.profile_pic,
-          receiver_username: receiver.username
+        const { Received_Stories } = receiver;
+        let users = []
+        let index = 0;
+        for(const story of Received_Stories){
+          const received_story = await stories.findById(story);
+          const sender = await User.findById(received_story.sender);
+          let user = await _.find(users, (user) => {
+            return user.id == sender.id;
+          });
+          if(user){
+            user.stories.push({
+              image: received_story.image
+            })
+          } else {
+            users.push({
+              index:index,
+              id: sender.id,
+              profile_pic: sender.profile_pic,
+              username: sender.username,
+              stories: [{
+                image: received_story.image
+              }],
+            })
+          }
+          index++;
         }
-        const posted_ids = receiver.followings;
-        const received_stories = await Promise.all(receiver.Received_Stories.map(async (story) => {
-            let data = {};
-            const received_story = await stories.findById(story);
-            const sender = await User.findById(received_story.sender);
-            data.sender_profile_pic = sender.profile_pic;
-            data.sender_username = sender.username;
-            data.sender_id = sender.id;
-            data.image = received_story.image;
-            return data;
-        }));
-        data.stories = received_stories
-        res.status(200).json(data);
+        res.status(200).json({users});
     } catch(err) {
       console.log(err)
         return res.status(200).json({
