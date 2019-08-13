@@ -290,9 +290,11 @@ router.post(
   requireLogin,
   upload.single("challenge_pic"),
   async (req, res) => {
-    console.log("hii");
-    console.log(req.file);
     try {
+      let prevDone = await doneChallenge.findOne({creator: req.body.creator, challenge_id: req.body.challenge_id});
+      if(prevDone && prevDone.id){
+        return res.json({ message: "The challenge is already completed" });
+      }
       let challenge = new doneChallenge({
         description: req.body.description,
         creator: req.body.creator,
@@ -304,26 +306,15 @@ router.post(
       // if (req.file.path) {
       //   Object.assign(challenge, { image: "/" + req.file.path });
       // }
-      console.log(req.userData.username);
-      console.log("0");
-      console.log(challenge.image);
 
-      challenge.save().then(data => {
-        res.json(data);
-        //res.json({ message: "Challenge completion saved" });
-      });
-      let user = await User.findById(req.body.given_to);
+      let challengeData = await challenge.save();
+      let user = await User.findById(challengeData.given_to);
       //user = JSON.parse(JSON.stringify(user));
-      console.log("1");
-      console.log(user);
-      user.Done_Challenges.push(req.body.challenge_id);
-      console.log("2");
+      user.Done_Challenges.push(challengeData.challenge_id);
       await user.save();
-      console.log(user);
-      console.log(user.Done_Challenges);
-      console.log("2");
+      return res.json({ message: "challenge completed" });
     } catch (error) {
-      console.log(error.message);
+      console.log(error);
       return res.json({ message: "Unable to save challenge completion" });
     }
   }
@@ -362,6 +353,7 @@ router.get("/fetch_doneChallenges/:id", requireLogin, async (req, res) => {
             caption: "",
             post_id: "",
             comments_count: 0,
+            likes_count: 0,
             like: "",
             type: "",
           };
@@ -390,6 +382,7 @@ router.get("/fetch_doneChallenges/:id", requireLogin, async (req, res) => {
           console.log(i, DoneChallenge.id)
           ChalDetail.post_id = DoneChallenge.id;
           ChalDetail.comments_count = DoneChallenge.comments.length;
+          ChalDetail.likes_count = DoneChallenge.likes.length;
           ChalDetail.challenge_pic = DoneChallenge.image;
           ChalDetail.type = DoneChallenge.type;
 //          if (DoneChallenge.like.emoji !== undefined)
