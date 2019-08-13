@@ -54,6 +54,13 @@
 
 ### `POST` story/post/:id
 
+### `POST` auth/send-verification
+phone or email
+
+### `POST` auth/verify
+phone or email
+code
+
 ### `POST` auth/gflogin
 
 ### `POST` auth/reg_gmail_fb
