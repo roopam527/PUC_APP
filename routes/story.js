@@ -9,7 +9,6 @@ const { isLength } = require('validator');
 const path = require("path");
 const multer = require("multer");
 const uuidv4 = require("uuid/v4");
-const _ = require('lodash');
 
 const storage = multer.diskStorage({
   destination: function(req, file, cb) {
@@ -74,28 +73,36 @@ router.get("/posted-stories", requireLogin, async (req, res, next) => {
     try{
         const receiver = await User.findById(req.userData.userId);
         const users  = [receiver.id, ...receiver.followings];
-        const data =  await users.reduce(async (received_stories, user) => {
+        const data =  await Promise.all(users.map(async (user) => {
           const user_data = await User.findById(user);
-          if(user_data.Received_Stories)
+          const { Received_Stories } = user_data;
+          if(Received_Stories)
           {
-            let stories_tmp = await user_data.Received_Stories.reduce(async (received_user_stories, story) => {
-              let data = {};
+            let stories_tmp = await Received_Stories.reduce( async (result, story) => {
               const received_story = await stories.findById(story);
+              let newResult = await result;
               if(received_story.isPosted){
-                 data.receiver_profile_pic = user_data.profile_pic;
-                 data.receiver_username = user_data.username;
-                 data.receiver_id = user_data.id;
-                 data.image = received_story.image;
-                 received_user_stories.push(data)
+                newResult.push({
+                  image: received_story.image,
+                });
               }
-              return received_user_stories;
+              return newResult;
             }, []);
-            received_stories = await received_stories;
-            received_stories = [...received_stories, ...stories_tmp];
+            return {
+              profile_pic: user_data.profile_pic,
+              username: user_data.username,
+              id: user_data.id,
+              stories: stories_tmp
+            }
           }
-          return received_stories;
-        }, []);
-        res.status(200).json(data);
+          return {
+            profile_pic: user_data.profile_pic,
+            username: user_data.username,
+            id: user_data.id,
+            stories: []
+          }
+      }));
+      res.status(200).json(data);
     } catch(err) {
       console.log(err)
         return res.status(200).json({
