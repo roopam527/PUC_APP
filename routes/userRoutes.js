@@ -7,16 +7,28 @@ const requireLogin = require("../middlewares/requireLogin");
 const bcrypt = require("bcryptjs");
 const salt = bcrypt.genSaltSync(10);
 const multer = require("multer");
+const multerS3 = require('multer-s3');
 const path = require("path");
 const uuidv4 = require("uuid/v4");
 //var stringify = require("json-stringify-safe");
 const Challenge = mongoose.model("challenges");
-const storage = multer.diskStorage({
-  destination: function(req, file, cb) {
-    cb(null, "./uploads/profile_pics");
+const aws = require('aws-sdk');
+aws.config.update({
+  accessKeyId: "AKIAJONQYUYY2Q7UDTLA",
+  secretAccessKey: "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"
+});
+const s3 = new aws.S3()
+
+const storage = multerS3({
+  s3: s3,
+  bucket: 'puc-app',
+  acl: 'public-read',
+  contentType: multerS3.AUTO_CONTENT_TYPE,
+  metadata: function (req, file, cb) {
+    cb(null, {fieldName: file.fieldname});
   },
-  filename: function(req, file, cb) {
-    cb(null, uuidv4() + file.originalname.split(" ").join(""));
+  key: function(req, file, cb) {
+    cb(null, "profile_pics/" + uuidv4() + file.originalname.split(" ").join(""));
   }
 });
 const fileFilter = (req, file, cb) => {
@@ -42,9 +54,8 @@ router.put(
         ? bcrypt.hashSync(req.body.password, salt)
         : undefined
     };
-
     if (req.file) {
-      Object.assign(data, { profile_pic: "/" + req.file.path });
+      Object.assign(data, { profile_pic: req.file.location });
     }
 
     for (let key in data) {

@@ -11,13 +11,25 @@ const doneChallenge = mongoose.model("doneChallenges"); //completed challenge
 const User = mongoose.model("users"); //users is a collection name
 
 const multer = require("multer");
+const multerS3 = require('multer-s3');
 const requireLogin = require("../middlewares/requireLogin");
-const storage = multer.diskStorage({
-  destination: function(req, file, cb) {
-    cb(null, "./uploads/challenge_pics");
+const aws = require('aws-sdk');
+aws.config.update({
+  accessKeyId: "AKIAJONQYUYY2Q7UDTLA",
+  secretAccessKey: "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"
+});
+const s3 = new aws.S3()
+
+const storage = multerS3({
+  s3: s3,
+  bucket: 'puc-app',
+  acl: 'public-read',
+  contentType: multerS3.AUTO_CONTENT_TYPE,
+  metadata: function (req, file, cb) {
+    cb(null, {fieldName: file.fieldname});
   },
-  filename: function(req, file, cb) {
-    cb(null, uuidv4() + file.originalname.split(" ").join(""));
+  key: function(req, file, cb) {
+    cb(null, "challenge_pics/" + uuidv4() + file.originalname.split(" ").join(""));
   }
 });
 
@@ -299,7 +311,7 @@ router.post(
         description: req.body.description,
         creator: req.body.creator,
         given_to: req.body.given_to,
-        image: "/" + req.file.path,
+        image: req.file.location,
         challenge_id: req.body.challenge_id,
         type: req.body.type,
       });

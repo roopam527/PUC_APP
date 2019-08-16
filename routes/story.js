@@ -8,14 +8,26 @@ const requireLogin = require("../middlewares/requireLogin");
 const { isLength } = require('validator');
 const path = require("path");
 const multer = require("multer");
+const multerS3 = require('multer-s3');
 const uuidv4 = require("uuid/v4");
 
-const storage = multer.diskStorage({
-  destination: function(req, file, cb) {
-    cb(null, "./uploads/story_pics");
+const aws = require('aws-sdk');
+aws.config.update({
+  accessKeyId: "AKIAJONQYUYY2Q7UDTLA",
+  secretAccessKey: "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"
+});
+const s3 = new aws.S3()
+
+const storage = multerS3({
+  s3: s3,
+  bucket: 'puc-app',
+  acl: 'public-read',
+  contentType: multerS3.AUTO_CONTENT_TYPE,
+  metadata: function (req, file, cb) {
+    cb(null, {fieldName: file.fieldname});
   },
-  filename: function(req, file, cb) {
-    cb(null, uuidv4() + file.originalname.split(" ").join(""));
+  key: function(req, file, cb) {
+    cb(null, "story_pics/" + uuidv4() + file.originalname.split(" ").join(""));
   }
 });
 
@@ -48,7 +60,7 @@ router.post("/create", requireLogin, upload.single("story_pic"), async (req, res
     const story = new stories({
       sender: req.userData.userId,
       receiver: req.body.receiver,
-      image: "/" + req.file.path,
+      image: req.file.location,
       isPosted: false,
       createdAt: Date.now(),
     });
