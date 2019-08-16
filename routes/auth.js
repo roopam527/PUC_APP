@@ -73,7 +73,7 @@ router.post(
         phone: req.body.phone,
         password: bcrypt.hashSync(req.body.password, salt)
       }).save().then(async () => {
-          await axios.post('http://localhost:8000/auth/send-verification', {
+          await axios.post('http://puc-app.herokuapp.com/auth/send-verification', {
             phone: req.body.phone,
             email: req.body.email
           });
