@@ -8,7 +8,6 @@ const requireLogin = require("../middlewares/requireLogin");
 const { isLength } = require('validator');
 const path = require("path");
 const multer = require("multer");
-const _ = require("lodash");
 const uuidv4 = require("uuid/v4");
 
 const storage = multer.diskStorage({
