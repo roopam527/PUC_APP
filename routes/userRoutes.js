@@ -14,8 +14,8 @@ const uuidv4 = require("uuid/v4");
 const Challenge = mongoose.model("challenges");
 const aws = require('aws-sdk');
 aws.config.update({
-  accessKeyId: "AKIAJONQYUYY2Q7UDTLA",
-  secretAccessKey: "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"
+  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
 });
 const s3 = new aws.S3()
 

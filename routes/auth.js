@@ -10,9 +10,9 @@ const config = require("../config/keys");
 const salt = bcrypt.genSaltSync(10);
 const requireLogin = require("../middlewares/requireLogin");
 const twilio = require('twilio');
-const twilioClient = twilio('AC8985a005f9d8ebf9f0467bc13617106a', '26dc24316fc19277f53160e45e4b0a0a')
+const twilioClient = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN)
 const sgMail = require('@sendgrid/mail');
-sgMail.setApiKey('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');
+sgMail.setApiKey(process.env.SG_API_KEY);
 const {isMobilePhone, isEmail, isLength} = require('validator');
 const axios = require('axios');
 
