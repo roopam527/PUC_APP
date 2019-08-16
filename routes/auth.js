@@ -189,6 +189,7 @@ router.post("/gflogin", async (req, res) => {
     } else {
       let user = await User.findOne({ login: login });
       user.username = req.body.username;
+      user.email_verified = true;
       user.save();
       const token = jwt.sign(
         { username: user.username, userId: user._id },
