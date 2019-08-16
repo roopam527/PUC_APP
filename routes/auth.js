@@ -13,6 +13,8 @@ const twilio = require('twilio');
 const twilioClient = twilio('AC8985a005f9d8ebf9f0467bc13617106a', '26dc24316fc19277f53160e45e4b0a0a')
 const sgMail = require('@sendgrid/mail');
 sgMail.setApiKey('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');
+const {isMobilePhone, isEmail, isLength} = require('validator');
+const axios = require('axios');
 
 router.post("/login", (req, res, next) => {
   passport.authenticate("local", (err, user, info) => {
@@ -40,38 +42,37 @@ router.post("/login", (req, res, next) => {
 
 router.post(
   "/register",
-  // [
-  //   check("username", "Please enter a name")
-  //     .not()
-  //     .isEmpty(),
-  //   check("email", "Please enter a valid email address").isEmail(),
-
-  //   check(
-  //     "password",
-  //     "The password must contain atleast 8 characters"
-  //   ).isLength({ min: 8 })
-  // ],
   async (req, res) => {
-    // const errors = validationResult(req);
-    // if (!errors.isEmpty()) {
-    //   return res.status(400).json({ errors: errors.array() });
-    // }
+    if(!req.body.email && !req.body.phone){
+      return res.status(200).json({ message: "invalid request" });
+    }
 
-    console.log(req.body);
+    if(req.body.email && !isEmail(req.body.email)){
+      return res.status(200).json({ message: "invalid email"} );
+    } else if(req.body.phone && !isMobilePhone(req.body.phone, 'en-IN', {strictMode: true})){
+      return res.status(200).json({ message: "invalid phone number"} );
+    }
+    if(!isLength(req.body.password, { min: 4 })){
+      return res.status(200).json({ message: "invalid password (min 4 charcters)" });
+    }
+
     let user = await User.findOne({
       $or: [{ email: req.body.email }, { username: req.body.username }]
     }).catch(() => {
       return res.status(200).send({ error: "Something Went wrong" });
     });
-
+    
     if (!user) {
       user = await new User({
         username: req.body.username,
         email: req.body.email,
+        phone: req.body.phone,
         password: bcrypt.hashSync(req.body.password, salt)
-      })
-        .save()
-        .then(() => {
+      }).save().then(async () => {
+          await axios.post('http://localhost:8000/auth/send-verification', {
+            phone: req.body.phone,
+            email: req.body.email
+          });
           return res.status(200).json({ message: "done" });
         })
         .catch(err => {
@@ -81,7 +82,7 @@ router.post(
     } else {
       return res
         .status(200)
-        .json({ message: "this email or username is already registered" });
+        .json({ message: "this email or username or phone_number is already registered" });
     }
   }
 );
@@ -245,6 +246,7 @@ router.post('/send-verification', async (req, res, next) => {
       return res.status(200).json({ message: "Verification Code Send" });
     }
   } catch(err){
+    console.log(err)
     res.status(200).json({ message: "Unable to send verification code" });
   }
 })
