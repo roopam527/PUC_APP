@@ -21,7 +21,11 @@ router.post("/login", (req, res, next) => {
     if (info) {
       return res.json(info);
     }
-
+    if(!user.email_verified && !user.phone_verified){
+      return res.status(200).json({
+        message: "User is not verified"
+      });
+    }
     //console.log(res.info)
     const token = jwt.sign(
       { username: user.username, userId: user._id },
