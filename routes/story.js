@@ -10,6 +10,7 @@ const path = require("path");
 const multer = require("multer");
 const multerS3 = require('multer-s3');
 const uuidv4 = require("uuid/v4");
+const _ = require('loadash');
 
 const aws = require('aws-sdk');
 aws.config.update({
