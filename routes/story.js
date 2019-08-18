@@ -93,10 +93,18 @@ router.get("/posted-stories", requireLogin, async (req, res, next) => {
           {
             let stories_tmp = await Received_Stories.reduce( async (result, story) => {
               const received_story = await stories.findById(story);
+              const sender = await User.findById(received_story.sender)
               let newResult = await result;
               if(received_story.isPosted){
                 newResult.push({
+                  id: received_story.id,
                   image: received_story.image,
+                  isPosted: received_story.isPosted,
+                  sender: {
+                    id: sender.id,
+                    profile_pic: sender.profile_pic,
+                    username: sender.username
+                  }
                 });
               }
               return newResult;
@@ -115,7 +123,7 @@ router.get("/posted-stories", requireLogin, async (req, res, next) => {
             stories: []
           }
       }));
-      res.status(200).json(data);
+      res.status(200).json({users: data});
     } catch(err) {
       console.log(err)
         return res.status(200).json({
@@ -173,7 +181,9 @@ router.get("/received-stories", requireLogin, async (req, res, next) => {
           });
           if(user){
             user.stories.push({
-              image: received_story.image
+              id: received_story.id,
+              image: received_story.image,
+              isPosted: received_story.isPosted,
             })
           } else {
             users.push({
@@ -182,7 +192,9 @@ router.get("/received-stories", requireLogin, async (req, res, next) => {
               profile_pic: sender.profile_pic,
               username: sender.username,
               stories: [{
-                image: received_story.image
+                id: received_story.id,
+                image: received_story.image,
+                isPosted: received_story.isPosted,
               }],
             })
           }
