@@ -20,10 +20,12 @@ module.exports = function(passport) {
     new LocalStrategy(async (username, password, done) => {
       // Match user
       console.log("treeeeeeeeeee");
-      const user = await User.findOne({ username: username });
+      let user = await User.findOne({
+        $or: [{ email: username }, { username: username }, { phone: username}]
+      });
 
       if (!user) {
-        return done(null, false, { error: "That username is not registered" });
+        return done(null, false, { error: "Not registered" });
       }
 
       // Match password
